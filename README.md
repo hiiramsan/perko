@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Expected project structure
 
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+/
+├── public/
+│   ├── manifest.json         # Configuración de PWA
+│   └── icons/                # Iconos para "Añadir a pantalla de inicio"
+├── src/
+│   ├── app/
+│   │   ├── (auth)/           # Grupo: Login, Registro, Recuperación
+│   │   │   ├── login/page.tsx
+│   │   │   └── layout.tsx
+│   │   ├── (client)/         # Grupo: El Cliente Final (PWA)
+│   │   │   ├── join/[slug]/page.tsx   # Landing de registro por negocio
+│   │   │   ├── card/page.tsx          # Vista de la tarjeta y puntos
+│   │   │   └── layout.tsx             # Layout minimalista (sin barras de navegación)
+│   │   ├── (merchant)/       # Grupo: El Barista/Empleado
+│   │   │   ├── scan/page.tsx          # El escáner de QR
+│   │   │   └── layout.tsx             # Layout optimizado para móvil en caja
+│   │   ├── (admin)/          # Grupo: El Dueño del Negocio
+│   │   │   ├── dashboard/page.tsx
+│   │   │   ├── settings/page.tsx      # Configuración de premios y logo
+│   │   │   └── layout.tsx             # Sidebar y navegación administrativa
+│   │   ├── api/              # Endpoints del Backend
+│   │   │   ├── loyalty/increment/route.ts
+│   │   │   ├── wallet/generate/route.ts
+│   │   │   └── webhooks/route.ts
+│   │   ├── layout.tsx        # Root Layout (Fuentes, Analytics)
+│   │   └── page.tsx          # Landing page global del SaaS (Venta del software)
+│   ├── components/           # UI Atoms & Molecules
+│   │   ├── ui/               # Componentes base (Botones, Inputs - Shadcn/ui)
+│   │   ├── shared/           # QrCode, Logo, ThemeToggle
+│   │   ├── scanner/          # Lógica de la cámara (Html5Qrcode)
+│   │   └── wallet/           # Botón de "Add to Google Wallet"
+│   ├── hooks/                # Hooks personalizados
+│   │   ├── usePoints.ts      # Fetch y suscripción Realtime a puntos
+│   │   └── useScanner.ts     # Lógica de procesamiento de escaneo
+│   ├── lib/                  # Clientes de terceros
+│   │   ├── supabase.ts       # Cliente de Supabase
+│   │   └── google-wallet.ts  # Configuración de Service Account
+│   ├── services/             # Lógica de Negocio (Pura)
+│   │   ├── loyaltyService.ts # Funciones de suma/canje de puntos
+│   │   └── fraudService.ts   # Validaciones de tiempo y seguridad
+│   ├── types/                # Definiciones de TypeScript
+│   │   └── database.ts       # Tipos generados de Supabase
+│   └── middleware.ts         # Protección de rutas por rol
+├── tailwind.config.js
+└── next.config.js
