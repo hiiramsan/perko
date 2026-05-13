@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { BadgeCheck, Check } from "lucide-react";
 
 export default function Home() {
@@ -121,12 +122,12 @@ export default function Home() {
           </p>
 
           <div className="flex gap-3">
-            <button
-              type="button"
+            <Link
+              href="/login"
               className="inline-flex items-center justify-center rounded-full bg-[#2A9D8F] px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-[#264653] hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#264653] focus:ring-offset-2 focus:ring-offset-[#f7f8fa] cursor-pointer"
             >
               Soy negocio
-            </button>
+            </Link>
             <button
               type="button"
               className="inline-flex items-center justify-center rounded-full border border-[#cbd5e1] bg-white px-8 py-4 text-base font-semibold text-[#0f172a] transition-all duration-200 hover:border-[#94a3b8] hover:text-[#1f2a44] focus:outline-none focus:ring-2 focus:ring-[#94a3b8] focus:ring-offset-2 focus:ring-offset-[#f7f8fa]"
