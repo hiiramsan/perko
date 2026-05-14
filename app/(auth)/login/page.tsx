@@ -39,10 +39,10 @@ export default function LoginPage() {
       <div className="relative z-10 flex items-center justify-center min-h-screen px-4 py-8">
         <div className="w-full max-w-md">
           {/* Card principal */}
-          <div className="bg-white rounded-3xl shadow-lg p-8 sm:p-10 border border-[#e2e8f0]">
+          <div className="bg-white rounded-none shadow-[6px_6px_0_0_rgba(0,0,0,0.95)] p-8 sm:p-10 border border-black border-r-4 border-b-4">
             {/* Sticker con palomita (igual que las tarjetas en la página principal) */}
             <div className="flex justify-center mb-6">
-              <div className="h-14 w-14 flex items-center justify-center rounded-full bg-[#2A9D8F] border-2 border-[#2A9D8F] shadow-lg">
+              <div className="h-14 w-14 flex items-center justify-center rounded-full bg-[#425E31] border-2 border-black shadow-sm">
                 <BadgeCheck color="#ffffff" size={28} />
               </div>
             </div>
@@ -53,7 +53,7 @@ export default function LoginPage() {
             </h1>
 
             {/* Subtítulo */}
-            <p className="text-center text-sm text-[#64748b] mb-8">
+            <p className="text-center text-sm text-gray-600 mb-8">
               INGRESA TUS CREDENCIALES
             </p>
 
@@ -66,13 +66,13 @@ export default function LoginPage() {
             <div className="mb-6">
               <button
                 type="button"
-                className="w-full border-2 border-[#e2e8f0] text-[#0f172a] font-semibold py-3 rounded-full hover:bg-[#f8fafc] transition flex items-center justify-center gap-2"
+                className="w-full border-2 border-gray-300 text-[#0f172a] font-bold py-3 rounded-lg hover:bg-gray-50 transition flex items-center justify-center gap-2"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC04"/>
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#0f172a"/>
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#0f172a"/>
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#0f172a"/>
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#0f172a"/>
                 </svg>
                 GOOGLE
               </button>
@@ -89,7 +89,7 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Email */}
               <div className="space-y-2">
-                <label htmlFor="email" className="block text-xs font-medium text-[#475569]">
+                <label htmlFor="email" className="block text-xs font-semibold text-[#0f172a] uppercase">
                   Correo
                 </label>
                 <input
@@ -98,14 +98,14 @@ export default function LoginPage() {
                   placeholder="tu@correo.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 border border-[#e2e8f0] rounded-full focus:outline-none focus:ring-2 focus:ring-[#2A9D8F] focus:border-transparent transition"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2f6a4f] focus:border-transparent transition"
                   required
                 />
               </div>
 
               {/* Password */}
               <div className="space-y-2">
-                <label htmlFor="password" className="block text-xs font-medium text-[#475569]">
+                <label htmlFor="password" className="block text-xs font-semibold text-[#0f172a] uppercase">
                   Contraseña
                 </label>
                 <div className="relative">
@@ -115,13 +115,13 @@ export default function LoginPage() {
                     placeholder="Ingresa tu contraseña"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 border border-[#e2e8f0] rounded-full focus:outline-none focus:ring-2 focus:ring-[#2A9D8F] focus:border-transparent transition pr-12"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2f6a4f] focus:border-transparent transition pr-12"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-[#2A9D8F] text-white p-1.5 rounded-full hover:bg-[#1f8a7a] transition"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-[#0f172a] text-white p-1.5 rounded hover:bg-[#1a1f3a] transition"
                   >
                     {showPassword ? (
                       <EyeOff size={18} />
@@ -139,29 +139,29 @@ export default function LoginPage() {
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded border-[#e2e8f0] text-[#2A9D8F] focus:ring-[#2A9D8F]"
+                    className="w-4 h-4 rounded border-gray-300 text-[#2f6a4f] focus:ring-[#2f6a4f]"
                   />
-                  <span className="text-sm text-[#475569]">Recuérdame</span>
+                  <span className="text-sm text-gray-600">Recuérdame</span>
                 </label>
-                <a href="#" className="text-sm font-medium text-[#2A9D8F] hover:text-[#1f8a7a] transition">
-                  ¿Olvidé mi contraseña?
+                <a href="#" className="text-sm font-semibold text-[#2f6a4f] hover:text-[#1f4a2f] transition">
+                  ¿OLVIDÉ MI CONTRASEÑA?
                 </a>
               </div>
 
               {/* Sign in button */}
               <button
                 type="submit"
-                className="w-full bg-[#2A9D8F] text-white font-bold py-3 rounded-full hover:bg-[#1f8a7a] transition uppercase tracking-wider"
+                className="w-full bg-[#0f172a] text-white font-bold py-3 rounded-lg hover:bg-[#1a1f3a] transition uppercase tracking-wider"
               >
                 Inicia Sesión
               </button>
             </form>
 
             {/* Link sign up */}
-            <p className="text-center mt-8 text-sm text-[#475569]">
+            <p className="text-center mt-8 text-sm text-gray-600">
               ¿No tienes cuenta?{' '}
-              <a href="/register" className="font-bold text-[#2A9D8F] transition hover:text-[#1f8a7a]">
-                Crear una
+              <a href="/register" className="font-bold text-[#2f6a4f] transition hover:text-[#1f4a2f]">
+                CREAR UNA
               </a>
             </p>
           </div>

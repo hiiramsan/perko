@@ -60,46 +60,6 @@ export default function OnboardingPage() {
 
 	return (
 		<main className="relative min-h-screen w-full overflow-hidden bg-[#f7f8fa] p-4 md:p-8">
-			<style>{`
-				@keyframes borderPulse {
-					0%, 100% {
-						border-color: #d8e2ea;
-						box-shadow: 0 0 0 0 rgba(90, 182, 217, 0);
-					}
-					50% {
-						border-color: #57b6d9;
-						box-shadow: 0 0 0 3px rgba(87, 182, 217, 0.1);
-					}
-				}
-				.border-pulse {
-					animation: borderPulse 3s ease-in-out infinite;
-				}
-				@keyframes checkmarkPulse {
-					0% {
-						transform: scale(0);
-						opacity: 0;
-					}
-					10% {
-						transform: scale(1);
-						opacity: 1;
-					}
-					50% {
-						transform: scale(1);
-						opacity: 1;
-					}
-					90% {
-						transform: scale(0);
-						opacity: 0;
-					}
-					100% {
-						transform: scale(0);
-						opacity: 0;
-					}
-				}
-				.checkmark-pulse {
-					animation: checkmarkPulse 2s ease-in-out infinite;
-				}
-			`}</style>
 			<div
 				className="absolute inset-0 z-0"
 				style={{
@@ -133,6 +93,49 @@ export default function OnboardingPage() {
 
 					<div className="grid items-start gap-10 lg:grid-cols-[1.1fr_0.9fr]">
 						<div className="max-w-xl">
+							<style>{`
+								@keyframes borderPulse {
+									0%, 100% {
+										border-color: #d8e2ea;
+										box-shadow: 0 0 0 0 rgba(90, 182, 217, 0);
+									}
+									50% {
+										border-color: #57b6d9;
+										box-shadow: 0 0 0 3px rgba(87, 182, 217, 0.1);
+									}
+								}
+								.border-pulse {
+									animation: borderPulse 3s ease-in-out infinite;
+								}
+								@keyframes checkmarkPulse {
+									0% {
+										transform: scale(0.2);
+										opacity: 0;
+									}
+									12% {
+										transform: scale(1);
+										opacity: 1;
+									}
+									58% {
+										transform: scale(1);
+										opacity: 1;
+									}
+									76% {
+										transform: scale(0.2);
+										opacity: 0;
+									}
+									100% {
+										transform: scale(0.2);
+										opacity: 0;
+									}
+								}
+								.checkmark-pulse {
+									animation: checkmarkPulse 2.2s linear infinite;
+									transform-origin: center;
+									will-change: transform, opacity;
+								}
+							`}</style>
+
 							{step === 0 ? (
 								<>
 									<h1 className="mb-2 text-3xl font-semibold leading-tight text-[#0f172a] md:text-4xl">
@@ -178,12 +181,7 @@ export default function OnboardingPage() {
 										<span className="rounded-md bg-[#0f172a] px-3 py-1.5 text-xs font-semibold uppercase text-white">
 											Subir
 										</span>
-										<input
-											type="file"
-											accept="image/*"
-											className="hidden"
-											onChange={handleLogoChange}
-										/>
+										<input type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
 									</label>
 
 									{logoPreview ? (
