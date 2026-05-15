@@ -96,7 +96,7 @@ export default function HowItWorks() {
                 <div className="aspect-square w-full max-w-86 overflow-hidden rounded-3xl border-2 border-black bg-white shadow-[0_18px_40px_-28px_rgba(15,23,42,0.45)] sm:max-w-92.5">
                   <div className="flex h-full w-full items-center justify-center">
                     <Image
-                      src="/guru.png"
+                      src="/step3.png"
                       alt="Unlock reward"
                       width={260}
                       height={180}
