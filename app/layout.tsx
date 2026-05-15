@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans, IBM_Plex_Sans_Condensed } from "next/font/google";
+import { IBM_Plex_Sans, IBM_Plex_Sans_Condensed, Geist } from "next/font/google";
 import "./globals.css";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const perkoMain = IBM_Plex_Sans({
   variable: "--font-main",
@@ -15,7 +18,11 @@ const perkoThin = IBM_Plex_Sans_Condensed({
 
 export const metadata: Metadata = {
   title: "Perko",
-  description: "Loyalty cards, one wallet.",
+  description: "Loyalty cards",
+  icons: {
+    icon: "/perkologo.ico",
+    shortcut: "/perkologo.ico",
+  },
 };
 
 export default function RootLayout({
@@ -26,7 +33,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${perkoMain.variable} ${perkoThin.variable} h-full antialiased`}
+      className={cn("h-full", "antialiased", perkoMain.variable, perkoThin.variable, "font-sans", geist.variable)}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
