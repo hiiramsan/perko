@@ -1,53 +1,128 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { BadgeCheck } from 'lucide-react';
+import { BadgeCheck, Sparkles } from 'lucide-react';
 
 type StampPreviewCardProps = {
-  businessName: string;
-  logoPreview: string;
+	businessName: string;
+	logoPreview: string;
+	cardColor?: string;
 };
 
 const TOTAL_STAMPS = 10;
 
-export default function StampPreviewCard({ businessName, logoPreview }: StampPreviewCardProps) {
-  const [filledCount, setFilledCount] = useState(0);
+type CardPalette = {
+	titleColor: string;
+	logoBorderColor: string;
+	logoTextColor: string;
+	filledStickerColor: string;
+	emptyStickerColor: string;
+	badgeColor: string;
+};
 
-  useEffect(() => {
-    const interval = window.setInterval(() => {
-      setFilledCount((current) => (current >= TOTAL_STAMPS ? 0 : current + 1));
-    }, 420);
+function clamp(value: number, min: number, max: number) {
+	return Math.min(max, Math.max(min, value));
+}
 
-    return () => window.clearInterval(interval);
-  }, []);
+function hexToRgb(hex: string) {
+	const normalized = hex.replace('#', '').trim();
+	const expanded = normalized.length === 3 ? normalized.split('').map((character) => character + character).join('') : normalized;
+	const parsed = Number.parseInt(expanded, 16);
 
-  const stamps = useMemo(() => Array.from({ length: TOTAL_STAMPS }, (_, index) => index), []);
+	return {
+		red: (parsed >> 16) & 255,
+		green: (parsed >> 8) & 255,
+		blue: parsed & 255,
+	};
+}
 
-  return (
-    <div className="h-full w-full rounded-2xl bg-[#4f7a35] p-3 shadow-[0_18px_40px_-20px_rgba(16,40,16,0.5)] sm:p-5">
-      <div className="mb-2 flex items-center justify-center sm:mb-3">
-        {logoPreview ? (
-          <img src={logoPreview} className="h-8 w-8 rounded-full sm:h-10 sm:w-10" />
-        ) : null}
-      </div>
-      <p className="mb-3 text-center text-sm font-semibold text-[#f2f6ef] sm:mb-4">
-        {businessName}
-      </p>
+function rgbToHex(red: number, green: number, blue: number) {
+	return `#${[red, green, blue].map((channel) => clamp(Math.round(channel), 0, 255).toString(16).padStart(2, '0')).join('')}`;
+}
 
-      <div className="grid grid-cols-5 gap-1.5 justify-items-center sm:gap-2">
-        {stamps.map((stampIndex) => (
-          <div
-            key={`perko-stamp-${stampIndex}`}
-            className={`flex h-7 w-7 items-center justify-center rounded-full sm:h-8 sm:w-8 ${stampIndex < filledCount ? 'bg-[#425E31]' : 'bg-[#8bb277]'}`}
-          >
-            {stampIndex < filledCount ? (
-              <span className="text-[9px] font-semibold text-[#e9f2e3] sm:text-[10px]">
-                <BadgeCheck color="#8bb277" />
-              </span>
-            ) : null}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+function mixColors(baseColor: string, targetColor: string, amount: number) {
+	const from = hexToRgb(baseColor);
+	const to = hexToRgb(targetColor);
+
+	return rgbToHex(
+		from.red + (to.red - from.red) * amount,
+		from.green + (to.green - from.green) * amount,
+		from.blue + (to.blue - from.blue) * amount,
+	);
+}
+
+function getRelativeLuminance(hex: string) {
+	const { red, green, blue } = hexToRgb(hex);
+
+	const channelToLinear = (channel: number) => {
+		const normalized = channel / 255;
+		return normalized <= 0.03928 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
+	};
+
+	return 0.2126 * channelToLinear(red) + 0.7152 * channelToLinear(green) + 0.0722 * channelToLinear(blue);
+}
+
+function getCardPalette(cardColor: string): CardPalette {
+	const isLightColor = getRelativeLuminance(cardColor) > 0.62;
+
+	return {
+		titleColor: isLightColor ? '#0f172a' : '#f8fbfd',
+		logoBorderColor: isLightColor ? 'rgba(15, 23, 42, 0.20)' : 'rgba(255, 255, 255, 0.32)',
+		logoTextColor: isLightColor ? 'rgba(15, 23, 42, 0.78)' : 'rgba(255, 255, 255, 0.88)',
+		filledStickerColor: mixColors(cardColor, '#0f172a', isLightColor ? 0.28 : 0.22),
+		emptyStickerColor: mixColors(cardColor, '#ffffff', isLightColor ? 0.34 : 0.48),
+		badgeColor: mixColors(cardColor, '#ffffff', isLightColor ? 0.68 : 0.48),
+	};
+}
+
+export default function StampPreviewCard({ businessName, logoPreview, cardColor = '#4f7a35' }: StampPreviewCardProps) {
+	const [filledCount, setFilledCount] = useState(0);
+	const palette = useMemo(() => getCardPalette(cardColor), [cardColor]);
+
+	useEffect(() => {
+		const interval = window.setInterval(() => {
+			setFilledCount((current) => (current >= TOTAL_STAMPS ? 0 : current + 1));
+		}, 420);
+
+		return () => window.clearInterval(interval);
+	}, []);
+
+	const stamps = useMemo(() => Array.from({ length: TOTAL_STAMPS }, (_, index) => index), []);
+
+	return (
+		<div className="h-full w-full rounded-2xl px-3 pt-3 pb-12 shadow-[0_18px_40px_-20px_rgba(16,40,16,0.5)] sm:px-5 sm:pt-5 sm:pb-14" style={{ backgroundColor: cardColor }}>
+			<div className="mb-2 flex items-center justify-center sm:mb-3">
+				{logoPreview ? (
+					<img src={logoPreview} alt="Logo del negocio" className="h-8 w-8 rounded-full object-cover sm:h-10 sm:w-10" />
+				) : (
+					<div
+						className="flex h-8 w-8 items-center justify-center rounded-full border sm:h-10 sm:w-10"
+						style={{ borderColor: palette.logoBorderColor, color: palette.logoTextColor, backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+					>
+						<Sparkles size={14} strokeWidth={2.4} />
+					</div>
+				)}
+			</div>
+
+			<p className="mb-3 text-center text-sm font-semibold sm:mb-4" style={{ color: palette.titleColor }}>
+				{businessName || 'Tu negocio'}
+			</p>
+
+			<div className="grid grid-cols-5 gap-2.5 justify-items-center sm:gap-3">
+				{stamps.map((stampIndex) => {
+					const isFilled = stampIndex < filledCount;
+
+					return (
+						<div
+							key={`perko-stamp-${stampIndex}`}
+							className="flex h-8 w-8 items-center justify-center rounded-full sm:h-9 sm:w-9"
+							style={{ backgroundColor: isFilled ? palette.filledStickerColor : palette.emptyStickerColor }}
+						>
+							{isFilled ? <BadgeCheck size={22} color={palette.badgeColor} strokeWidth={2.6} /> : null}
+						</div>
+					);
+				})}
+			</div>
+		</div>
+	);
 }

@@ -13,7 +13,7 @@ export default function PrimaryAuthButton({
     <button
       type={type}
       disabled={disabled}
-      className="w-full rounded-lg bg-[#0f172a] py-3 font-bold uppercase tracking-wider text-white transition hover:bg-[#1a1f3a] disabled:cursor-not-allowed disabled:opacity-60"
+      className="w-full rounded-lg bg-[#05668D] py-3 font-bold uppercase tracking-wider text-white transition hover:bg-[#264653] disabled:cursor-not-allowed disabled:opacity-60"
     >
       {label}
     </button>

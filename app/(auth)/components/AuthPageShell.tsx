@@ -42,9 +42,7 @@ export default function AuthPageShell({
         <div className="w-full max-w-md">
           <div className="rounded-none border border-black border-r-4 border-b-4 bg-white p-8 shadow-[6px_6px_0_0_rgba(0,0,0,0.95)] sm:p-10">
             <div className="mb-6 flex justify-center">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-black bg-[#425E31] shadow-sm">
-                <BadgeCheck color="#ffffff" size={28} />
-              </div>
+              <BadgeCheck color="#ef4f2f" size={44} strokeWidth={2.1} />
             </div>
 
             <h1 className="mb-2 text-center text-2xl font-bold text-[#0f172a] sm:text-3xl">{title}</h1>
@@ -61,7 +59,7 @@ export default function AuthPageShell({
 
             <p className="mt-8 text-center text-sm text-gray-600">
               {footerText}{' '}
-              <Link href={footerHref} className="font-bold text-[#2f6a4f] transition hover:text-[#1f4a2f]">
+              <Link href={footerHref} className="font-bold text-[#ef4f2f] transition hover:text-[#c94223]">
                 {footerLinkLabel}
               </Link>
             </p>

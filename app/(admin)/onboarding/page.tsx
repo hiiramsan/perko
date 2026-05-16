@@ -3,10 +3,19 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, BadgeCheck, Building2, ImageUp, Link2 } from 'lucide-react';
+import { ArrowLeft, BadgeCheck, ImageUp, Link2 } from 'lucide-react';
 import OnboardingStyles from './components/OnboardingStyles';
 import StampPreviewCard from './components/StampPreviewCard';
 import SystemSelectionCombobox, { type SystemOption } from './components/SystemSelectionCombobox';
+
+const CARD_COLORS = [
+	{ id: 'forest', label: 'Bosque', value: '#4f7a35' },
+	{ id: 'coral', label: 'Coral', value: '#ef4f2f' },
+	{ id: 'amber', label: 'Ámbar', value: '#c58b00' },
+	{ id: 'cobalt', label: 'Oceánico', value: '#05668D' },
+	{ id: 'plum', label: 'Ciruela', value: '#7b4aa2' },
+	{ id: 'rose', label: 'Rosado', value: '#c93d73' },
+];
 
 const SYSTEM_OPTIONS: SystemOption[] = [
 	{
@@ -40,7 +49,8 @@ const SYSTEM_OPTIONS: SystemOption[] = [
 ];
 
 const LINK_STAGE_INDEX = 2;
-const SYSTEM_SELECTION_STAGE_INDEX = 3;
+const COLOR_STAGE_INDEX = 3;
+const SYSTEM_SELECTION_STAGE_INDEX = 4;
 
 function buildSlug(value: string) {
 	return value
@@ -66,12 +76,24 @@ export default function OnboardingPage() {
 	const [slugTouched, setSlugTouched] = useState(false);
 	const [logoFile, setLogoFile] = useState<File | null>(null);
 	const [logoPreview, setLogoPreview] = useState('');
+	const [cardColor, setCardColor] = useState(CARD_COLORS[0].value);
 	const [selectedSystems, setSelectedSystems] = useState<string[]>([]);
 	const [lockedSystems, setLockedSystems] = useState<string[]>([]);
 	const [rewardProduct, setRewardProduct] = useState('');
 	const [rewardVisits, setRewardVisits] = useState('10');
 	const [pointsPerPeso, setPointsPerPeso] = useState('5');
 	const [pesosPerPoint, setPesosPerPoint] = useState('0.10');
+
+	const getCardContrastColor = (hexColor: string) => {
+		const normalized = hexColor.replace('#', '').trim();
+		const expanded = normalized.length === 3 ? normalized.split('').map((character) => character + character).join('') : normalized;
+		const parsed = Number.parseInt(expanded, 16);
+		const red = (parsed >> 16) & 255;
+		const green = (parsed >> 8) & 255;
+		const blue = parsed & 255;
+		const luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
+		return luminance > 0.62 ? '#0f172a' : '#f8fbfd';
+	};
 
 	useEffect(() => {
 		if (!slugTouched) {
@@ -94,6 +116,7 @@ export default function OnboardingPage() {
 			{ kind: 'business' as const },
 			{ kind: 'logo' as const },
 			{ kind: 'link' as const },
+			{ kind: 'color' as const },
 			{ kind: 'systems' as const },
 			...activeSystems.map((system) => ({ kind: 'system' as const, system })),
 		];
@@ -115,6 +138,8 @@ export default function OnboardingPage() {
 				return Boolean(logoFile);
 			case 'link':
 				return slug.trim().length > 1;
+			case 'color':
+				return Boolean(cardColor);
 			case 'systems':
 				return selectedSystems.length > 0;
 			case 'system':
@@ -129,7 +154,7 @@ export default function OnboardingPage() {
 			default:
 				return false;
 		}
-	}, [businessName, currentPhase, logoFile, pointsPerPeso, pesosPerPoint, rewardProduct, rewardVisits, selectedSystems, slug]);
+	}, [businessName, cardColor, currentPhase, logoFile, pointsPerPeso, pesosPerPoint, rewardProduct, rewardVisits, selectedSystems, slug]);
 
 	const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
@@ -234,6 +259,55 @@ export default function OnboardingPage() {
 						<p className="mt-3 text-xs text-[#64748b]">
 							Link final: <span className="font-semibold text-[#0f172a]">perko.com/{slug || 'tu-negocio'}</span>
 						</p>
+					</>
+				);
+			case 'color':
+				return (
+					<>
+						<h1 className="mb-2 text-3xl font-semibold leading-tight text-[#0f172a] md:text-4xl">Elige el color de tu tarjeta</h1>
+						<p className="mb-8 text-sm text-[#0f172a]/60">Así verás en vivo cómo se personaliza el diseño antes de pasar a los sistemas.</p>
+
+						<label className="mb-3 block text-xs font-bold uppercase tracking-wide text-[#334155]">Color de la tarjeta</label>
+						<div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+							{CARD_COLORS.map((option) => {
+								const isSelected = cardColor === option.value;
+
+								return (
+									<button
+										key={option.id}
+										type="button"
+										onClick={() => setCardColor(option.value)}
+										className={`rounded-2xl border p-3 text-left transition ${isSelected ? 'border-[#0f172a] bg-white shadow-[0_10px_24px_-18px_rgba(15,23,42,0.55)]' : 'border-[#dbe4ec] bg-[#f8fbfd] hover:border-[#94a3b8]'}`}
+									>
+										<div className="flex items-center gap-3">
+											<span className="h-10 w-10 rounded-full border border-white shadow-sm" style={{ backgroundColor: option.value }} />
+											<div>
+												<p className="text-sm font-semibold text-[#0f172a]">{option.label}</p>
+												<p className="text-xs text-[#64748b]">{isSelected ? 'Seleccionado' : 'Toca para usarlo'}</p>
+											</div>
+										</div>
+									</button>
+								);
+							})}
+						</div>
+
+						<div className="mt-4 rounded-2xl border border-dashed border-[#c6d3de] bg-[#f8fbfd] p-4">
+							<div className="flex items-center justify-between gap-4">
+								<div>
+									<p className="text-sm font-semibold text-[#0f172a]">Color libre</p>
+									<p className="mt-1 text-xs text-[#64748b]">Si ninguno te convence, elige cualquier color que quieras.</p>
+								</div>
+								<label className="inline-flex cursor-pointer items-center gap-3 rounded-full border border-[#dbe4ec] bg-white px-3 py-2">
+									<span className="text-xs font-semibold uppercase tracking-wide text-[#334155]">Elegir</span>
+									<input
+										type="color"
+										value={cardColor}
+										onChange={(event) => setCardColor(event.target.value)}
+										className="h-10 w-10 cursor-pointer rounded-full border border-[#dbe4ec] bg-transparent p-0"
+									/>
+								</label>
+							</div>
+						</div>
 					</>
 				);
 			case 'systems':
@@ -391,49 +465,29 @@ export default function OnboardingPage() {
 						</div>
 
 						<div className="lg:pt-1 flex flex-col items-center justify-center h-full">
-							{stageIndex > LINK_STAGE_INDEX ? (
+							{stageIndex <= COLOR_STAGE_INDEX ? (
 								<div className="flex flex-col items-center gap-3">
-									<div className="h-44 w-64 sm:h-50 sm:w-72 stamp-bounce">
-										<StampPreviewCard businessName={businessName} logoPreview={logoPreview} />
+									<div className="h-52 w-72 sm:h-56 sm:w-80 stamp-bounce">
+										<StampPreviewCard businessName={businessName} logoPreview={logoPreview} cardColor={cardColor} />
 									</div>
 									<div className="h-3 w-48 bg-black rounded-full shadow-pulse opacity-30 blur-xl"></div>
 								</div>
 							) : (
 								<aside className="rounded-2xl border border-[#d8e2ea] bg-[#f9fcfb] p-6 border-pulse">
 									<div className="mb-5 flex items-center justify-center">
-										<div className="h-20 w-20 rounded-full border-4 border-[#8bb277] bg-[#425E31] p-1 shadow-[0_8px_24px_-12px_rgba(16,40,16,0.5)]">
-											<div className="flex h-full w-full items-center justify-center rounded-full bg-[#4f7a35]">
+										<div className="h-20 w-20 rounded-full border-4 p-1 shadow-[0_8px_24px_-12px_rgba(16,40,16,0.5)]" style={{ backgroundColor: cardColor, borderColor: cardColor }}>
+											<div className="flex h-full w-full items-center justify-center rounded-full" style={{ backgroundColor: cardColor }}>
 												<div className="checkmark-pulse">
-														<BadgeCheck color="#d6f5cc" size={34} />
+													<BadgeCheck color={getCardContrastColor(cardColor)} size={38} strokeWidth={2.7} />
 												</div>
 											</div>
 										</div>
 									</div>
 
-									<h2 className="text-center text-xl font-bold text-[#0f172a]">Perko te ayuda a convertir mas</h2>
+									<h2 className="text-center text-xl font-bold text-[#0f172a]">Prepara tu programa antes de publicarlo</h2>
 									<p className="mx-auto mt-3 max-w-sm text-center text-sm leading-relaxed text-[#475569]">
-										Mientras completas estos datos, nosotros preparamos tu tarjeta digital para que puedas empezar
-										a atraer y fidelizar clientes en minutos.
+										Aquí terminas de definir cómo funcionará tu tarjeta. El diseño ya está listo; ahora vamos con la lógica de recompensas.
 									</p>
-
-									<div className="mt-6 rounded-xl bg-white p-4 shadow-[0_10px_24px_-18px_rgba(15,23,42,0.55)]">
-										<p className="text-xs font-semibold uppercase tracking-wide text-[#64748b]">Vista rápida</p>
-										<div className="mt-3 flex items-center gap-3">
-											<div className="h-10 w-10 overflow-hidden rounded-full border border-[#dbe4ec] bg-[#eef2f1]">
-												{logoPreview ? (
-													<img src={logoPreview} alt="Logo negocio" className="h-full w-full object-cover" />
-												) : (
-													<div className="flex h-full w-full items-center justify-center bg-linear-to-br from-[#4f7a35] to-[#2f6a4f]">
-														<Building2 size={18} color="#e7f6e1" />
-													</div>
-												)}
-											</div>
-											<div>
-												<p className="text-sm font-semibold text-[#0f172a]">{businessName || 'Tu negocio'}</p>
-												<p className="text-xs text-[#64748b]">perko.com/{slug || 'tu-negocio'}</p>
-											</div>
-										</div>
-									</div>
 								</aside>
 							)}
 						</div>

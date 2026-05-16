@@ -36,9 +36,9 @@ export default function SystemSelectionCombobox({
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="flex w-full items-center justify-between gap-4 rounded-2xl border border-[#dbe4ec] bg-[#f8fbfd] px-4 py-4 text-left transition hover:border-[#57b6d9]"
+        className="flex min-h-16 w-full items-center justify-between gap-4 rounded-2xl border border-[#dbe4ec] bg-[#f8fbfd] px-4 py-4 text-left transition hover:border-[#57b6d9]"
       >
-        <div className="flex flex-1 flex-wrap gap-2">
+        <div className="scrollbar-none flex min-w-0 flex-1 items-center gap-2 overflow-x-auto whitespace-nowrap [&::-webkit-scrollbar]:hidden">
           {selectedIds.length ? (
             selectedIds.map((id) => {
               const option = options.find((item) => item.id === id);
@@ -47,7 +47,7 @@ export default function SystemSelectionCombobox({
               return (
                 <span
                   key={id}
-                  className="inline-flex items-center rounded-full bg-[#0f172a] px-3 py-1 text-xs font-semibold text-white"
+                  className="inline-flex shrink-0 items-center rounded-full bg-[#0f172a] px-3 py-1 text-xs font-semibold text-white"
                 >
                   {option.label}
                 </span>
