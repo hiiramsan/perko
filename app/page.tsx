@@ -1,6 +1,7 @@
 import HeroSection from "@/components/landingPage/HeroSection";
 import HowItWorks from "@/components/landingPage/HowItWorks";
 import SocialProof from "@/components/landingPage/SocialProof";
+import ActionSection from "@/components/landingPage/ActionSection";
 import FaqSection from "@/components/landingPage/FaqSection";
 import FooterSection from "@/components/landingPage/FooterSection";
 
@@ -22,6 +23,7 @@ export default function Home() {
       <HowItWorks />
       <SocialProof />
       <FaqSection />
+      {/* <ActionSection /> */}
       <FooterSection />
     </main>
   );
