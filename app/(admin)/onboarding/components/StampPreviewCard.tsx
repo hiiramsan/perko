@@ -7,6 +7,7 @@ type StampPreviewCardProps = {
 	businessName: string;
 	logoPreview: string;
 	cardColor?: string;
+	compact?: boolean;
 };
 
 const TOTAL_STAMPS = 10;
@@ -75,7 +76,7 @@ function getCardPalette(cardColor: string): CardPalette {
 	};
 }
 
-export default function StampPreviewCard({ businessName, logoPreview, cardColor = '#4f7a35' }: StampPreviewCardProps) {
+export default function StampPreviewCard({ businessName, logoPreview, cardColor = '#4f7a35', compact = false }: StampPreviewCardProps) {
 	const [filledCount, setFilledCount] = useState(0);
 	const palette = useMemo(() => getCardPalette(cardColor), [cardColor]);
 
@@ -90,35 +91,38 @@ export default function StampPreviewCard({ businessName, logoPreview, cardColor 
 	const stamps = useMemo(() => Array.from({ length: TOTAL_STAMPS }, (_, index) => index), []);
 
 	return (
-		<div className="h-full w-full rounded-2xl px-3 pt-3 pb-12 shadow-[0_18px_40px_-20px_rgba(16,40,16,0.5)] sm:px-5 sm:pt-5 sm:pb-14" style={{ backgroundColor: cardColor }}>
-			<div className="mb-2 flex items-center justify-center sm:mb-3">
+		<div
+			className={`h-full w-full rounded-2xl shadow-[0_18px_40px_-20px_rgba(16,40,16,0.5)] ${compact ? 'px-4 pt-3 pb-6 sm:px-5 sm:pt-3 sm:pb-7' : 'px-3 pt-3 pb-12 sm:px-5 sm:pt-5 sm:pb-14'}`}
+			style={{ backgroundColor: cardColor }}
+		>
+			<div className={`flex items-center justify-center ${compact ? 'mb-1.5 sm:mb-2' : 'mb-2 sm:mb-3'}`}>
 				{logoPreview ? (
-					<img src={logoPreview} alt="Logo del negocio" className="h-8 w-8 rounded-full object-cover sm:h-10 sm:w-10" />
+					<img src={logoPreview} alt="Logo del negocio" className={`${compact ? 'h-7 w-7 sm:h-8 sm:w-8' : 'h-8 w-8 sm:h-10 sm:w-10'} rounded-full object-cover`} />
 				) : (
 					<div
-						className="flex h-8 w-8 items-center justify-center rounded-full border sm:h-10 sm:w-10"
+						className={`flex items-center justify-center rounded-full border ${compact ? 'h-7 w-7 sm:h-8 sm:w-8' : 'h-8 w-8 sm:h-10 sm:w-10'}`}
 						style={{ borderColor: palette.logoBorderColor, color: palette.logoTextColor, backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
 					>
-						<Sparkles size={14} strokeWidth={2.4} />
+						<Sparkles size={compact ? 12 : 14} strokeWidth={2.4} />
 					</div>
 				)}
 			</div>
 
-			<p className="mb-3 text-center text-sm font-semibold sm:mb-4" style={{ color: palette.titleColor }}>
+			<p className={`text-center font-semibold ${compact ? 'mb-2 text-sm sm:mb-2.5' : 'mb-3 text-sm sm:mb-4'}`} style={{ color: palette.titleColor }}>
 				{businessName || 'Tu negocio'}
 			</p>
 
-			<div className="grid grid-cols-5 gap-2.5 justify-items-center sm:gap-3">
+			<div className={`grid grid-cols-5 justify-items-center ${compact ? 'gap-2 sm:gap-2.5' : 'gap-2.5 sm:gap-3'}`}>
 				{stamps.map((stampIndex) => {
 					const isFilled = stampIndex < filledCount;
 
 					return (
 						<div
 							key={`perko-stamp-${stampIndex}`}
-							className="flex h-8 w-8 items-center justify-center rounded-full sm:h-9 sm:w-9"
+							className={`flex items-center justify-center rounded-full ${compact ? 'h-7 w-7 sm:h-8 sm:w-8' : 'h-8 w-8 sm:h-9 sm:w-9'}`}
 							style={{ backgroundColor: isFilled ? palette.filledStickerColor : palette.emptyStickerColor }}
 						>
-							{isFilled ? <BadgeCheck size={22} color={palette.badgeColor} strokeWidth={2.6} /> : null}
+							{isFilled ? <BadgeCheck size={compact ? 18 : 22} color={palette.badgeColor} strokeWidth={2.6} /> : null}
 						</div>
 					);
 				})}

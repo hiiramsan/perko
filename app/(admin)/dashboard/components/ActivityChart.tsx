@@ -5,15 +5,16 @@ import type { ActivityPoint } from '../dashboard-data';
 
 type ActivityChartProps = {
 	data: ActivityPoint[];
+	highlightIndex?: number;
 };
 
-export function ActivityChart({ data }: ActivityChartProps) {
+export function ActivityChart({ data, highlightIndex }: ActivityChartProps) {
 	const chart = useMemo(() => {
 		const width = 720;
 		const height = 320;
-		const paddingX = 56;
-		const paddingTop = 32;
-		const paddingBottom = 64;
+		const paddingX = 24;
+		const paddingTop = 64;
+		const paddingBottom = 48;
 		const innerWidth = width - paddingX * 2;
 		const innerHeight = height - paddingTop - paddingBottom;
 		const maxValue = Math.max(...data.map((point) => point.value), 1);
@@ -39,22 +40,28 @@ export function ActivityChart({ data }: ActivityChartProps) {
 			</defs>
 
 			{[0, 1, 2, 3, 4].map((line) => {
-				const y = 32 + ((chart.height - 32 - 64) / 4) * line;
-				return <line key={line} x1="56" x2="664" y1={y} y2={y} stroke="#e7edf2" strokeDasharray="4 6" />;
+				const y = 64 + ((chart.height - 64 - 48) / 4) * line;
+				return <line key={line} x1="24" x2="696" y1={y} y2={y} stroke="#e7edf2" strokeDasharray="4 6" />;
 			})}
 
 			<path d={chart.areaPath} fill="url(#chart-fill)" />
 			<path d={chart.linePath} fill="none" stroke="#2A9D8F" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
 
-			{chart.points.map((point) => (
-				<circle key={point.label} cx={point.x} cy={point.y} r="6" fill="#2A9D8F" stroke="#ffffff" strokeWidth="4" />
-			))}
+			{chart.points.map((point, index) => {
+				const isHighlighted = highlightIndex === index || Boolean(point.isHighlighted);
 
-			{chart.points.map((point) => (
-				<text key={`label-${point.label}`} x={point.x} y={286} textAnchor="middle" className="fill-[#64748b] text-[12px] font-semibold">
-					{point.label}
-				</text>
-			))}
+				return <circle key={point.label} cx={point.x} cy={point.y} r={isHighlighted ? 8 : 6} fill={isHighlighted ? '#FF9800' : '#2A9D8F'} stroke="#ffffff" strokeWidth="4" />;
+			})}
+
+			{chart.points.map((point, index) => {
+				const isHighlighted = highlightIndex === index || Boolean(point.isHighlighted);
+
+				return (
+					<text key={`label-${point.label}`} x={point.x} y={300} textAnchor="middle" className={isHighlighted ? 'fill-[#FF9800] text-[12px] font-bold' : 'fill-[#64748b] text-[12px] font-semibold'}>
+						{point.label}
+					</text>
+				);
+			})}
 
 			{chart.points.map((point) => (
 				<text key={`value-${point.label}`} x={point.x} y={point.y - 14} textAnchor="middle" className="fill-[#0f172a] text-[12px] font-semibold">

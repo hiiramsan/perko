@@ -27,37 +27,34 @@ export function DashboardCardModal({ open, onClose, children }: DashboardCardMod
 		<div className="fixed inset-0 z-40 flex items-center justify-center px-4 py-6">
 			<button type="button" aria-label="Cerrar tarjeta" className="absolute inset-0 bg-[#0f172a]/55 backdrop-blur-sm" onClick={onClose} />
 
-			<div className="relative z-10 w-full max-w-[26rem] rounded-[2rem] border border-[#d8e2ea] bg-white p-5 shadow-[0_24px_70px_-25px_rgba(15,23,42,0.45)] sm:p-7">
-				<div className="flex items-start justify-between gap-4">
+			<div className="relative z-10 w-full max-w-3xl rounded-[2rem] border border-[#d8e2ea] bg-white p-5 shadow-[0_24px_70px_-25px_rgba(15,23,42,0.45)] sm:p-8">
+				<div className="flex items-start justify-between gap-4 mb-6">
 					<div>
-						<p className="text-xs font-bold uppercase tracking-[0.28em] text-[#64748b]">Tarjeta del negocio</p>
-						<h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#0f172a]">Vista previa del sello</h2>
-						<p className="mt-2 max-w-md text-sm leading-relaxed text-[#475569]">
-							Así es como tus clientes verán tu tarjeta de fidelidad.
-						</p>
+						<p className="text-xs font-bold uppercase tracking-[0.28em] text-[#64748b]">Tarjeta de fidelidad</p>
+						<h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#0f172a]">Personaliza tu tarjeta</h2>
 					</div>
 
 					<button
 						type="button"
 						onClick={onClose}
-						className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#dbe4ec] bg-white text-[#0f172a] transition hover:border-[#05668D] hover:text-[#05668D]"
+						className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#dbe4ec] bg-white text-[#0f172a] transition hover:border-[#05668D] hover:bg-[#f8fbfd]"
 						aria-label="Cerrar tarjeta"
 					>
 						<X size={18} />
 					</button>
 				</div>
 
-				<div className="mt-6">
+				<div className="mt-2">
 					{children}
 				</div>
 
-				<div className="mt-6 flex justify-end">
+				<div className="mt-8 flex justify-end">
 					<button
 						type="button"
 						onClick={onClose}
-						className="inline-flex items-center justify-center rounded-full border border-[#dbe4ec] bg-white px-5 py-3 text-sm font-semibold text-[#0f172a] transition hover:border-[#94a3b8] hover:bg-[#f8fbfd]"
+						className="inline-flex items-center justify-center rounded-full bg-[#0f172a] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#1e293b]"
 					>
-						Cerrar
+						Guardar cambios
 					</button>
 				</div>
 			</div>
