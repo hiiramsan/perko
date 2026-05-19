@@ -3,6 +3,8 @@ import Link from "next/link"
 import { Highlighter } from "../ui/highlighter"
 import StampPreviewCard from "@/app/(admin)/onboarding/components/StampPreviewCard"
 
+
+// currently not being used, planned for the future
 export default function ActionSection() {
     return (
         <section id="action" className="my-12 w-full px-6 sm:px-12">
