@@ -7,7 +7,7 @@ export default function GoogleAuthButton({ onClick }: GoogleAuthButtonProps) {
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-[#dbe4ec] py-3 font-bold uppercase tracking-wider text-[#0f172a] transition hover:border-[#cfd8e1] hover:bg-[#f8fbfd]"
+      className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-[#dbe4ec] py-3 font-bold uppercase tracking-wider text-[#0f172a] transition hover:border-[#cfd8e1] hover:bg-[#f8fbfd]"
     >
       <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />

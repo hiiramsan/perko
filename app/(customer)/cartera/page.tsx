@@ -226,7 +226,7 @@ export default function CardsPage() {
           role="dialog"
           aria-modal="true"
           aria-label="Scan your card"
-          className="fixed bottom-0 left-0 right-0 z-50 mx-auto max-w-[420px] rounded-t-[28px] bg-white pb-12 transition-transform duration-[380ms]"
+          className="fixed bottom-0 left-0 right-0 z-50 mx-auto max-w-105 rounded-t-[28px] bg-white pb-12 transition-transform duration-380"
           style={{
             transform: sheetVisible ? 'translateY(0)' : 'translateY(100%)',
             transitionTimingFunction: 'cubic-bezier(0.34,1.2,0.64,1)',

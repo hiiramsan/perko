@@ -59,7 +59,7 @@ export default function LoginPage() {
             <span className="text-sm text-gray-600">Recuérdame</span>
           </label>
           <a href="#" className="text-sm font-semibold text-[#ef4f2f] transition hover:text-[#c94223]">
-            ¿OLVIDÉ MI CONTRASEÑA?
+            OLVIDÉ MI CONTRASEÑA
           </a>
         </div>
 

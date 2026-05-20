@@ -40,13 +40,10 @@ export default function AuthPageShell({
 
       <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-8">
         <div className="w-full max-w-md">
-          <div className="rounded-none border border-black border-r-4 border-b-4 bg-white p-8 shadow-[6px_6px_0_0_rgba(0,0,0,0.95)] sm:p-10">
-            <div className="mb-6 flex justify-center">
-              <BadgeCheck color="#ef4f2f" size={44} strokeWidth={2.1} />
-            </div>
+          <div className="rounded-none border border-black bg-white p-8 shadow-[10px_10px_0_0_rgba(0,0,0,0.95)] sm:p-10">
 
-            <h1 className="mb-2 text-center text-2xl font-bold text-[#0f172a] sm:text-3xl">{title}</h1>
-            <p className="mb-8 text-center text-sm text-gray-600">{subtitle}</p>
+            <h1 className="mb-2 text-center text-xl font-bold text-[#0f172a] sm:text-2xl">{title}</h1>
+            <p className="mb-2 text-center text-sm text-gray-600">{subtitle}</p>
 
             <p className="mb-4 text-center text-sm text-gray-600">con</p>
             <div className="mb-6">
