@@ -1,12 +1,36 @@
-type GoogleAuthButtonProps = {
-  onClick?: () => void;
-};
+'use client';
 
-export default function GoogleAuthButton({ onClick }: GoogleAuthButtonProps) {
+import { createClient } from '@/lib/supabase/client';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
+
+function GoogleButtonLogic() {
+  const supabase = createClient();
+  const searchParams = useSearchParams();
+  const flow = searchParams?.get('flow');
+
+  const handleGoogleLogin = async () => {
+    const redirectUrl = new URL(`${window.location.origin}/callback`);
+    if (flow) {
+      redirectUrl.searchParams.set('flow', flow);
+    }
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectUrl.toString(),
+      },
+    });
+
+    if (error) {
+      console.error('Error al iniciar sesión:', error.message);
+    }
+  };
+
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={handleGoogleLogin}
       className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-[#dbe4ec] py-3 font-bold uppercase tracking-wider text-[#0f172a] transition hover:border-[#cfd8e1] hover:bg-[#f8fbfd]"
     >
       <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -17,5 +41,13 @@ export default function GoogleAuthButton({ onClick }: GoogleAuthButtonProps) {
       </svg>
       GOOGLE
     </button>
+  );
+}
+
+export default function GoogleAuthButton() {
+  return (
+    <Suspense fallback={<div className="h-[52px] w-full animate-pulse rounded-lg bg-gray-200"></div>}>
+      <GoogleButtonLogic />
+    </Suspense>
   );
 }

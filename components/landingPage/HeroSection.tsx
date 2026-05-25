@@ -114,17 +114,18 @@ const HeroSection = () => {
 
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                         <Link
-                            href="/login"
+                            href="/login?flow=owner"
                             className="inline-flex items-center justify-center rounded-full bg-[#05668D] px-8 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-[#045676] hover:scale-[1.02] active:scale-[0.98] focus:outline-none hover:ring-2 hover:ring-[#264653] hover:ring-offset-2 hover:ring-offset-[#f7f8fa] cursor-pointer gap-2"
                         >
                             Soy negocio <Store />
                         </Link>
-                        <button
+                        <Link
                             type="button"
+                            href="/login?flow=client"
                             className="inline-flex items-center justify-center rounded-full border border-[#9da5af] bg-white px-8 py-4 text-base font-semibold text-[#0f172a] transition-all duration-200 hover:border-[#7a838f] hover:text-[#1f2a44] hover:outline-none hover:ring-2 hover:ring-[#94a3b8] hover:ring-offset-2 focus:ring-offset-[#f7f8fa] cursor-pointer gap-2"
                         >
                             Soy cliente <User />
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </div>
