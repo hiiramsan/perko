@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Sans_Condensed, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { AuthProvider } from "./context/AuthContext";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
 const perkoMain = IBM_Plex_Sans({
   variable: "--font-main",
@@ -35,7 +36,12 @@ export default function RootLayout({
       lang="en"
       className={cn("h-full", "antialiased", perkoMain.variable, perkoThin.variable, "font-sans", geist.variable)}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+
+      </body>
     </html>
   );
 }
