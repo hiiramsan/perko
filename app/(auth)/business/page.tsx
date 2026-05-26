@@ -3,18 +3,18 @@
 import AuthPageShell from '../components/AuthPageShell';
 import RegisterForm from '../components/RegisterForm';
 
-export default function RegisterPage() {
+export default function BusinessRegisterPage() {
   return (
     <AuthPageShell
-      title="CREA TU CUENTA"
-      subtitle="REGÍSTRATE PARA EMPEZAR A USAR PERKO"
-      footerText="¿Ya tienes cuenta?"
+      title="REGISTRATE"
+      subtitle="EMPIEZA A CREAR TU PROGRAMA DE LEALTAD"
+      footerText="¿Tu negocio ya tiene cuenta?"
       footerHref="/login"
       footerLinkLabel="INICIA SESIÓN"
       googleIntent="register"
-      googleRole="customer"
+      googleRole="admin"
     >
-      <RegisterForm role="customer" successRedirect="/cartera" />
+      <RegisterForm role="admin" successRedirect="/onboarding" />
     </AuthPageShell>
   );
 }

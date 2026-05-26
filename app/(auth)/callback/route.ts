@@ -1,13 +1,14 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { SignJWT } from 'jose';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
-  const flow = searchParams.get('flow');
+  const signupRoleCookie = request.cookies.get('perko_signup_role')?.value;
+  const signupRole = signupRoleCookie === 'admin' ? 'admin' : signupRoleCookie === 'customer' ? 'customer' : null;
 
   if (!code) return NextResponse.redirect(`${origin}/login?error=no-code`);
 
@@ -24,8 +25,9 @@ export async function GET(request: Request) {
     // (Identity bridging logic remains identical here if needed...)
 
     let currentRole = profile?.role;
+    let isNewProfile = false;
     if (!currentRole) {
-      currentRole = flow === 'owner' ? 'admin' : 'customer';
+      currentRole = signupRole || 'customer';
       const { data: newProfile } = await supabase
         .from('profiles')
         .insert([{
@@ -37,6 +39,7 @@ export async function GET(request: Request) {
         }])
         .select().single();
       profile = newProfile;
+      isNewProfile = true;
     }
 
     // --- YOUR CUSTOM SESSION GENERATION LAYER ---
@@ -53,24 +56,19 @@ export async function GET(request: Request) {
       .sign(JWT_SECRET);
 
     // Create the redirect response
-    const targetUrl = currentRole === 'customer' ? `${origin}/cartera` : `${origin}/onboarding`;
-    
-    // Check if business exists for admin
-    if (currentRole === 'admin') {
-      const { data: business } = await supabase.from('businesses').select('id').eq('owner_id', user.id).maybeSingle();
-      if (business) {
-        return createSessionResponse(`${origin}/dashboard`, customSessionToken);
-      }
+    let targetUrl = currentRole === 'customer' ? `${origin}/cartera` : `${origin}/dashboard`;
+    if (isNewProfile && currentRole === 'admin') {
+      targetUrl = `${origin}/onboarding`;
     }
 
-    return createSessionResponse(targetUrl, customSessionToken);
+    return createSessionResponse(targetUrl, customSessionToken, signupRoleCookie ? 'perko_signup_role' : null);
   }
 
   return NextResponse.redirect(`${origin}/login?error=unknown`);
 }
 
 // Helper to set the custom secure cookie on redirect
-function createSessionResponse(url: string, token: string) {
+function createSessionResponse(url: string, token: string, signupCookieName: string | null) {
   const response = NextResponse.redirect(url);
   response.cookies.set('perko_session', token, {
     httpOnly: true,
@@ -79,5 +77,8 @@ function createSessionResponse(url: string, token: string) {
     maxAge: 60 * 60 * 24 * 7, // 7 days
     path: '/',
   });
+  if (signupCookieName) {
+    response.cookies.set(signupCookieName, '', { maxAge: 0, path: '/' });
+  }
   return response;
 }

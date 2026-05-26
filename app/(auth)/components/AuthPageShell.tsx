@@ -10,6 +10,9 @@ type AuthPageShellProps = {
   footerText: string;
   footerHref: string;
   footerLinkLabel: string;
+  googleIntent?: 'login' | 'register';
+  googleRole?: 'admin' | 'customer';
+  footerOnClick?: () => void;
   children: ReactNode;
 };
 
@@ -19,6 +22,9 @@ export default function AuthPageShell({
   footerText,
   footerHref,
   footerLinkLabel,
+  googleIntent = 'login',
+  googleRole,
+  footerOnClick,
   children,
 }: AuthPageShellProps) {
   return (
@@ -47,7 +53,7 @@ export default function AuthPageShell({
 
             <p className="mb-4 text-center text-sm text-gray-600">con</p>
             <div className="mb-6">
-              <GoogleAuthButton />
+              <GoogleAuthButton intent={googleIntent} role={googleRole} />
             </div>
 
             <AuthDivider />
@@ -56,9 +62,19 @@ export default function AuthPageShell({
 
             <p className="mt-8 text-center text-sm text-gray-600">
               {footerText}{' '}
-              <Link href={footerHref} className="font-bold text-[#ef4f2f] transition hover:text-[#c94223]">
-                {footerLinkLabel}
-              </Link>
+              {footerOnClick ? (
+                <button
+                  type="button"
+                  onClick={footerOnClick}
+                  className="font-bold text-[#ef4f2f] transition hover:text-[#c94223]"
+                >
+                  {footerLinkLabel}
+                </button>
+              ) : (
+                <Link href={footerHref} className="font-bold text-[#ef4f2f] transition hover:text-[#c94223]">
+                  {footerLinkLabel}
+                </Link>
+              )}
             </p>
           </div>
         </div>
