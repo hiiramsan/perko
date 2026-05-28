@@ -44,18 +44,8 @@ export function DashboardCardModal({ open, onClose, children }: DashboardCardMod
 					</button>
 				</div>
 
-				<div className="mt-2">
+				<div className="mt-2 text-left">
 					{children}
-				</div>
-
-				<div className="mt-8 flex justify-end">
-					<button
-						type="button"
-						onClick={onClose}
-						className="inline-flex items-center justify-center rounded-full bg-[#0f172a] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#1e293b]"
-					>
-						Guardar cambios
-					</button>
 				</div>
 			</div>
 		</div>

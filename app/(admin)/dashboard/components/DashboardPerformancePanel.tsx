@@ -19,8 +19,8 @@ export function DashboardPerformancePanel({ todayMetrics, historicalMetrics }: D
 	const activeMetric = useMemo(() => metrics.find((metric) => metric.key === activeKey) ?? metrics[0], [activeKey, metrics]);
 
 	return (
-		<section className="flex h-full min-h-0 w-full flex-col rounded-[2rem] border border-[#d8e2ea] border-t-[5px] border-t-[#05668D] bg-white/94 p-4 shadow-[0_18px_40px_-26px_rgba(15,23,42,0.2)] backdrop-blur sm:p-5">
-			<div className="flex items-center justify-between gap-4 w-full">
+		<section className="flex h-full min-h-0 w-full flex-col rounded-none border border-black bg-white p-4 sm:p-5">
+			<div className="flex items-start justify-between gap-4 w-full">
 				<div>
 					<div className="flex items-center gap-2">
 						<span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Indicadores de rendimiento</span>
@@ -34,7 +34,7 @@ export function DashboardPerformancePanel({ todayMetrics, historicalMetrics }: D
 							setMode('today');
 							setActiveKey((currentKey) => (todayMetrics.some((metric) => metric.key === currentKey) ? currentKey : todayMetrics[0]?.key ?? currentKey));
 						}}
-						className={`rounded-full px-3 py-1 text-[11px] font-semibold transition sm:text-xs ${mode === 'today' ? 'bg-white text-[#0f172a] shadow-sm' : 'text-[#64748b] hover:text-[#0f172a]'}`}
+						className={`rounded-full px-3 py-1 text-[11px] font-semibold transition sm:text-xs ${mode === 'today' ? 'bg-[#05668D] text-white shadow-sm' : 'text-[#0f172a] hover:text-[#475569]'}`}
 					>
 						Hoy
 					</button>
@@ -44,7 +44,7 @@ export function DashboardPerformancePanel({ todayMetrics, historicalMetrics }: D
 							setMode('historical');
 							setActiveKey((currentKey) => (historicalMetrics.some((metric) => metric.key === currentKey) ? currentKey : historicalMetrics[0]?.key ?? currentKey));
 						}}
-						className={`rounded-full px-3 py-1 text-[11px] font-semibold transition sm:text-xs ${mode === 'historical' ? 'bg-white text-[#0f172a] shadow-sm' : 'text-[#64748b] hover:text-[#0f172a]'}`}
+						className={`rounded-full px-3 py-1 text-[11px] font-semibold transition sm:text-xs ${mode === 'historical' ? 'bg-[#05668D] text-white shadow-sm' : 'text-[#0f172a] hover:text-[#475569]'}`}
 					>
 						Histórico
 					</button>
@@ -52,16 +52,13 @@ export function DashboardPerformancePanel({ todayMetrics, historicalMetrics }: D
 			</div>
 
 			{activeMetric ? (
-				<div className="mt-6 flex min-h-0 flex-1 flex-col w-full px-1">
-					{/* Cambiado a flex-col en pantallas pequeñas y flex-row en XL para evitar colisiones de ancho */}
-					<div className="flex flex-col md:flex-row md:items-end justify-between gap-4 w-full">
-						<div className="flex items-baseline gap-2">
+				<div className="mt-4 flex min-h-0 flex-1 flex-col w-full px-1">
+					<div className="flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
+						<div className="flex items-baseline gap-2 shrink-0">
 							<p className="text-[2.8rem] leading-none font-semibold tracking-tight text-[#0f172a]">{activeMetric.value}</p>
-							{/* Espacio para el badge de crecimiento (+12%) que platicamos antes, si decides ponerlo */}
 						</div>
-						
-						{/* Contenedor de botones optimizado para no comprimir el layout */}
-						<div className="flex flex-wrap gap-2 justify-start md:justify-end shrink-0">
+
+						<div className="flex flex-wrap gap-2 justify-start md:justify-end flex-1">
 							{metrics.map((metric) => {
 								const isActive = metric.key === activeKey;
 
@@ -70,7 +67,7 @@ export function DashboardPerformancePanel({ todayMetrics, historicalMetrics }: D
 										key={metric.key}
 										type="button"
 										onClick={() => setActiveKey(metric.key)}
-										className={`rounded-full border px-3 py-1 text-[11px] font-semibold transition ${isActive ? 'border-transparent bg-[#0f172a] text-white shadow-[0_10px_26px_-14px_rgba(15,23,42,0.7)]' : 'border-[#dbe4ec] bg-white text-[#334155] hover:border-[#94a3b8] hover:bg-[#f8fbfd]'}`}
+										className={`rounded-full border px-3 py-1 text-[11px] font-semibold transition ${isActive ? 'border-transparent bg-[#05668D] text-white shadow-sm' : 'border-[#dbe4ec] bg-white text-[#0f172a] hover:border-[#94a3b8] hover:bg-[#f8fbfd]'}`}
 									>
 										{metric.label}
 									</button>
@@ -79,8 +76,7 @@ export function DashboardPerformancePanel({ todayMetrics, historicalMetrics }: D
 						</div>
 					</div>
 
-					{/* Contenedor de la gráfica forzado a ocupar el 100% del ancho disponible */}
-					<div className="mt-6 flex-1 min-h-0 w-full min-w-0 pt-1">
+					<div className="mt-4 flex-1 min-h-0 w-full min-w-0 pt-1">
 						<ActivityChart data={activeMetric.chartData} highlightIndex={activeMetric.highlightIndex} />
 					</div>
 				</div>

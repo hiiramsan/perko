@@ -2,7 +2,7 @@ import { Clock, Coffee, Bell, Lightbulb } from 'lucide-react';
 
 export function PeakHourCard() {
 	return (
-		<section className="flex h-full min-h-0 flex-col rounded-[2rem] border border-[#d8e2ea] border-t-[5px] border-t-[#05668D] bg-white/94 p-4 shadow-[0_18px_40px_-26px_rgba(15,23,42,0.2)] backdrop-blur sm:p-5 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+		<section className="flex h-full min-h-0 flex-col rounded-none border border-black bg-white p-4 sm:p-5 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
 			<div className="mb-3 flex shrink-0 items-center gap-2">
 				<span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Insights del Día</span>
 			</div>
