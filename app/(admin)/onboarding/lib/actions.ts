@@ -1,6 +1,10 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { cookies } from 'next/headers';
+import { jwtVerify } from 'jose';
+
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 type CreateBusinessInput = {
   name: string;
@@ -15,17 +19,30 @@ type CreateBusinessInput = {
 };
 
 export async function createBusinessAction(data: CreateBusinessInput) {
-  const supabase = await createClient();
+  // 1. Obtener al usuario desde la cookie custom en lugar de Supabase Auth
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get('perko_session')?.value;
 
-  // Obtener al usuario autenticado desde el servidor
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-  if (authError || !user) {
+  if (!sessionToken) {
     return { error: 'No autorizado. Debes iniciar sesión primero.' };
   }
 
-  // Insertar la empresa inyectando el UUID del usuario como owner_id
-  const { data: newBusiness, error: insertError } = await supabase
+  let userPayload;
+  try {
+    const { payload } = await jwtVerify(sessionToken, JWT_SECRET);
+    userPayload = payload as { id: string; email: string; role: string };
+  } catch (err) {
+    return { error: 'Sesión inválida o expirada.' };
+  }
+
+  // 2. Usar Admin Client para saltar RLS ya que la sesión custom no usa tokens nativos de Supabase
+  const supabaseAdmin = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  // Insertar la empresa
+  const { data: newBusiness, error: insertError } = await supabaseAdmin
     .from('businesses')
     .insert([
       {
@@ -33,7 +50,7 @@ export async function createBusinessAction(data: CreateBusinessInput) {
         slug: data.slug,
         logo_url: data.logoUrl || null,
         color: data.color || null,
-        owner_id: user.id,
+        owner_id: userPayload.id,
       },
     ])
     .select()
@@ -41,14 +58,12 @@ export async function createBusinessAction(data: CreateBusinessInput) {
 
   if (insertError) {
     console.error('Error de Supabase al insertar empresa:', insertError.message);
-    return { error: 'No se pudo crear el negocio. El slug podría estar duplicado.' };
+    return { error: `Error en BD al crear negocio: ${insertError.message}` };
   }
 
-  // 3. Insertar configuraciones satélite basadas en la selección del onboarding
-	
-	// ¿Activó recompensas por visitas?
+  // 3. Insertar configuraciones satélite
 	if (data.selectedSystems.includes('rewards')) {
-		const { error: rewardsError } = await supabase
+		const { error: rewardsError } = await supabaseAdmin
 			.from('business_rewards_programs')
 			.insert([
 				{
@@ -60,13 +75,12 @@ export async function createBusinessAction(data: CreateBusinessInput) {
 
 		if (rewardsError) {
 			console.error(rewardsError);
-			return { error: 'Negocio creado, pero falló la configuración del sistema de visitas.' };
+			return { error: `Falló la configuración de recompensas: ${rewardsError.message}` };
 		}
 	}
 
-	// ¿Activó puntos por compra?
 	if (data.selectedSystems.includes('points')) {
-		const { error: pointsError } = await supabase
+		const { error: pointsError } = await supabaseAdmin
 			.from('business_points_programs')
 			.insert([
 				{
@@ -78,7 +92,7 @@ export async function createBusinessAction(data: CreateBusinessInput) {
 
 		if (pointsError) {
 			console.error(pointsError);
-			return { error: 'Negocio creado, pero falló la configuración del sistema de puntos.' };
+			return { error: `Falló la configuración de puntos: ${pointsError.message}` };
 		}
 	}
 

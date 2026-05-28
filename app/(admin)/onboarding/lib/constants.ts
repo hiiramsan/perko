@@ -1,4 +1,4 @@
-import type { SystemOption } from '../../components/SystemSelectionCombobox';
+import type { SystemOption } from '../components/SystemSelectionCombobox';
 
 export const CARD_COLORS = [
 	{ id: 'forest', label: 'Bosque', value: '#4f7a35' },

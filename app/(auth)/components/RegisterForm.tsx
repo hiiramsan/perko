@@ -23,6 +23,7 @@ export default function RegisterForm({ role, successRedirect }: RegisterFormProp
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,8 +55,25 @@ export default function RegisterForm({ role, successRedirect }: RegisterFormProp
       return;
     }
 
-    router.push(successRedirect);
+    setIsSuccess(true);
   };
+
+  if (isSuccess) {
+    return (
+      <div className="flex flex-col items-center justify-center space-y-4 rounded-xl bg-green-50 p-8 text-center border border-green-200">
+        <svg className="h-16 w-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
+        </svg>
+        <h3 className="text-xl font-bold text-green-900">¡Revisa tu correo!</h3>
+        <p className="text-green-800">
+          Hemos enviado un enlace de confirmación a <strong>{email}</strong>. Haz clic en el enlace para activar tu cuenta.
+        </p>
+        <Link href="/login" className="mt-4 text-sm font-semibold text-green-700 hover:text-green-900 underline">
+          Volver al inicio de sesión
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">

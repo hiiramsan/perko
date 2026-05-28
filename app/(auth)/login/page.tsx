@@ -1,21 +1,33 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import FormField from '../components/FormField';
 import PasswordField from '../components/PasswordField';
 import PrimaryAuthButton from '../components/PrimaryAuthButton';
 import AuthPageShell from '../components/AuthPageShell';
 import Link from 'next/link';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  
   const [rememberMe, setRememberMe] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showRegisterChoice, setShowRegisterChoice] = useState(false);
+
+  // Leer los errores que llegan redirigidos desde el link mágico del correo
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    if (errorParam === 'invalid-token') setErrorMsg('El enlace de validación es inválido.');
+    if (errorParam === 'expired-token') setErrorMsg('Tu enlace de validación expiró. Regístrate otra vez.');
+    if (errorParam === 'already-registered') setErrorMsg('El correo ya fue registrado, por favor inicia sesión.');
+    if (errorParam === 'session-expired') setErrorMsg('Tu sesión ha expirado, inicia sesión de nuevo.');
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,6 +97,11 @@ export default function LoginPage() {
               {errorMsg}
             </div>
           )}
+          {successMsg && (
+            <div className="bg-green-50 text-green-700 p-3 text-sm font-semibold border-l-4 border-green-500">
+              {successMsg}
+            </div>
+          )}
 
           <FormField
             id="email"
@@ -126,5 +143,13 @@ export default function LoginPage() {
         </form>
       )}
     </AuthPageShell>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen items-center justify-center">Cargando...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }

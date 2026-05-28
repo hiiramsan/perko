@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { Moon, QrCode, Sun, UserCircle2, Activity, BadgeCheck } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Moon, QrCode, Sun, UserCircle2, Activity, BadgeCheck, LogOut } from 'lucide-react';
 import StampPreviewCard from '@/app/(admin)/onboarding/components/StampPreviewCard';
-import { DashboardFloatingQrButton } from './components/DashboardFloatingQrButton';
+import { useAuth } from '@/app/context/AuthContext';
 import { DashboardCardModal } from './components/DashboardCardModal';
 import { DashboardPerformancePanel } from './components/DashboardPerformancePanel';
 import { DashboardQrModal } from './components/DashboardQrModal';
@@ -13,10 +13,24 @@ import { TopClientsCard } from './components/TopClientsCard';
 import { dashboardPerformanceMetricsHistorical, dashboardPerformanceMetricsToday, recentScanRows } from './dashboard-data';
 
 export default function DashboardPage() {
+	const { logout } = useAuth();
 	const [isQrModalOpen, setIsQrModalOpen] = useState(false);
 	const [isCardModalOpen, setIsCardModalOpen] = useState(false);
 	const [isDarkMode, setIsDarkMode] = useState(false);
 	const [cardColor, setCardColor] = useState('#4f7a35');
+	const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+	const profileMenuRef = useRef<HTMLDivElement>(null);
+
+	// Cerrar menú de perfil al hacer click afuera
+	useEffect(() => {
+		function handleClickOutside(event: MouseEvent) {
+			if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+				setIsProfileMenuOpen(false);
+			}
+		}
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => document.removeEventListener('mousedown', handleClickOutside);
+	}, []);
 
 	return (
 		<main className="relative flex h-screen w-full flex-col overflow-hidden bg-[#f7f8fa] px-4 py-3 md:px-8 md:py-4">
@@ -67,13 +81,32 @@ export default function DashboardPage() {
 							{isDarkMode ? <Moon size={18} /> : <Sun size={18} />}
 						</button>
 
-						<button
-							type="button"
-							className="inline-flex items-center gap-2 rounded-full border border-[#dbe4ec] bg-white/60 px-3 py-2 text-sm font-semibold text-[#0f172a] shadow-sm backdrop-blur transition hover:border-[#94a3b8] hover:bg-white"
-						>
-							<UserCircle2 size={18} className="text-[#05668D]" />
-							Perfil
-						</button>
+						<div className="relative" ref={profileMenuRef}>
+							<button
+								type="button"
+								onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+								className="inline-flex items-center gap-2 rounded-full border border-[#dbe4ec] bg-white/60 px-3 py-2 text-sm font-semibold text-[#0f172a] shadow-sm backdrop-blur transition hover:border-[#94a3b8] hover:bg-white"
+							>
+								<UserCircle2 size={18} className="text-[#05668D]" />
+								Perfil
+							</button>
+
+							{isProfileMenuOpen && (
+								<div className="absolute right-0 top-full mt-2 w-48 overflow-hidden rounded-xl border border-[#dbe4ec] bg-white py-1 shadow-lg shadow-black/5">
+									<button
+										type="button"
+										onClick={() => {
+											setIsProfileMenuOpen(false);
+											logout();
+										}}
+										className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-red-600 transition hover:bg-red-50"
+									>
+										<LogOut size={16} />
+										Cerrar sesión
+									</button>
+								</div>
+							)}
+						</div>
 					</div>
 				</div>
 			</header>
