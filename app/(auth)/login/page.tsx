@@ -101,13 +101,13 @@ function LoginForm() {
               type="checkbox"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-[#2A9D8F] focus:ring-[#2A9D8F]"
+              className="h-4 w-4 rounded border-gray-300 text-[#2A9D8F] focus:ring-[#2A9D8F] accent-[#05668D] cursor-pointer"
             />
             <span className="text-sm text-gray-600">Recuerdame</span>
           </label>
-          <a href="#" className="text-sm font-semibold text-[#ef4f2f] transition hover:text-[#c94223]">
+          {/* <a href="#" className="text-sm font-semibold text-[#ef4f2f] transition hover:text-[#c94223]">
             OLVIDE MI CONTRASENA
-          </a>
+          </a> */}
         </div>
 
         <PrimaryAuthButton label={loading ? 'Procesando...' : 'Inicia sesion'} disabled={loading} />

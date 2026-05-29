@@ -7,7 +7,7 @@ export default function RegisterPage() {
   return (
     <AuthPageShell
       title="CREA TU CUENTA"
-      subtitle="REGÍSTRATE PARA EMPEZAR A USAR PERKO"
+      subtitle="Registrate para empezar a usar Perko"
       footerText="¿Ya tienes cuenta?"
       footerHref="/login"
       footerLinkLabel="INICIA SESIÓN"

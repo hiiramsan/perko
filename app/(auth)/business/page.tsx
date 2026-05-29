@@ -7,7 +7,7 @@ export default function BusinessRegisterPage() {
   return (
     <AuthPageShell
       title="REGISTRATE"
-      subtitle="EMPIEZA A CREAR TU PROGRAMA DE LEALTAD"
+      subtitle="Crea tu sistema de lealtad"
       footerText="¿Tu negocio ya tiene cuenta?"
       footerHref="/login"
       footerLinkLabel="INICIA SESIÓN"

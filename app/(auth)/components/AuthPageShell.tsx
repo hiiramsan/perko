@@ -71,7 +71,7 @@ export default function AuthPageShell({
                   {footerLinkLabel}
                 </button>
               ) : (
-                <Link href={footerHref} className="font-bold text-[#ef4f2f] transition hover:text-[#c94223]">
+                <Link href={footerHref} className="font-bold text-[#05668D] transition hover:text-[#264653]">
                   {footerLinkLabel}
                 </Link>
               )}

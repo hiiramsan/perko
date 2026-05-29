@@ -107,9 +107,9 @@ export default function OnboardingPage() {
 				<div className="absolute -bottom-1/2 -right-1/4 h-110 w-110 rounded-full bg-[#e6ece9] blur-[120px]" />
 			</div>
 
-			<section className="relative z-10 mx-auto max-w-7xl rounded-2xl border border-[#d5dde4] bg-white shadow-[0_18px_40px_-25px_rgba(15,23,42,0.35)]">
-				<div className="h-1.5 w-full rounded-t-2xl bg-[#e7edf2]">
-					<div className="h-full rounded-tl-2xl bg-[#ef4f2f] transition-all duration-500" style={{ width: `${progress}%` }} />
+			<section className="relative z-10 mx-auto max-w-7xl overflow-hidden rounded-2xl border border-[#d5dde4] bg-white shadow-[0_18px_40px_-25px_rgba(15,23,42,0.35)]">
+				<div className="h-1.5 w-full bg-[#e7edf2]">
+					<div className="h-full bg-[#05668D] transition-all duration-500" style={{ width: `${progress}%` }} />
 				</div>
 
 				<div className="px-6 pb-8 pt-6 md:px-10 md:pb-12">
@@ -127,7 +127,7 @@ export default function OnboardingPage() {
 									type="button"
 									onClick={goBack}
 									disabled={stageIndex === 0}
-									className="rounded-lg border border-[#c8d3de] bg-white px-6 py-2.5 text-sm font-semibold text-[#334155] transition disabled:cursor-not-allowed disabled:opacity-50"
+									className="rounded-lg border border-[#c8d3de] bg-white px-6 py-2.5 text-sm font-semibold text-[#334155] transition disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
 								>
 									Atras
 								</button>
@@ -136,7 +136,7 @@ export default function OnboardingPage() {
 									type="button"
 									onClick={goNext}
 									disabled={!canContinue || loading}
-									className="rounded-lg bg-[#dfe8ef] px-8 py-2.5 text-sm font-semibold text-[#6b7d8d] transition enabled:bg-[#0f172a] enabled:text-white enabled:hover:bg-[#1e293b] disabled:cursor-not-allowed"
+									className="rounded-lg bg-[#dfe8ef] px-8 py-2.5 text-sm font-semibold text-[#6b7d8d] transition enabled:bg-[#0f172a] enabled:text-white enabled:hover:bg-[#1e293b] disabled:cursor-not-allowed cursor-pointer"
 								>
 									{loading ? 'Creando...' : (stageIndex === phases.length - 1 ? 'Listo' : 'Siguiente')}
 								</button>

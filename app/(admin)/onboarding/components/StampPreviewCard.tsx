@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { BadgeCheck, Sparkles } from 'lucide-react';
+import { BadgeCheck, Store } from 'lucide-react';
 
 type StampPreviewCardProps = {
 	businessName: string;
@@ -103,7 +103,7 @@ export default function StampPreviewCard({ businessName, logoPreview, cardColor 
 						className={`flex items-center justify-center rounded-full border ${compact ? 'h-7 w-7 sm:h-8 sm:w-8' : 'h-8 w-8 sm:h-10 sm:w-10'}`}
 						style={{ borderColor: palette.logoBorderColor, color: palette.logoTextColor, backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
 					>
-						<Sparkles size={compact ? 12 : 14} strokeWidth={2.4} />
+						<Store size={compact ? 12 : 14} strokeWidth={2.4} />
 					</div>
 				)}
 			</div>

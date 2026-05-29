@@ -41,7 +41,7 @@ export default function PasswordField({
         <button
           type="button"
           onClick={() => setShowPassword((prev) => !prev)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1.5 text-[#0f172a] transition hover:text-[#ef4f2f]"
+          className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1.5 text-[#0f172a] transition hover:text-[#05668D] cursor-pointer"
           aria-label={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
         >
           {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
