@@ -65,17 +65,19 @@ export default function SystemSelectionCombobox({
           {options.map((option) => {
             const selected = selectedIds.includes(option.id);
             const expanded = expandedInfoId === option.id;
+            const disabled = Boolean(option.comingSoon);
 
             return (
               <div
                 key={option.id}
-                className={`rounded-2xl border p-4 transition ${selected ? 'border-[#2A9D8F] bg-[#eef8f6]' : 'border-[#e7edf2] bg-[#fbfdfe]'}`}
+                className={`rounded-2xl border p-4 transition ${selected ? 'border-[#2A9D8F] bg-[#eef8f6]' : 'border-[#e7edf2] bg-[#fbfdfe]'} ${disabled ? 'opacity-60' : ''}`}
               >
                 <div className="flex items-start gap-3">
                   <button
                     type="button"
                     onClick={() => onToggle(option.id)}
-                    className={`mt-0.5 flex h-6 w-6 items-center justify-center rounded-full border transition ${selected ? 'border-[#2A9D8F] bg-[#2A9D8F] text-white' : 'border-[#cbd5e1] bg-white text-transparent'}`}
+                    disabled={disabled}
+                    className={`mt-0.5 flex h-6 w-6 items-center justify-center rounded-full border transition ${selected ? 'border-[#2A9D8F] bg-[#2A9D8F] text-white' : 'border-[#cbd5e1] bg-white text-transparent'} ${disabled ? 'cursor-not-allowed' : ''}`}
                     aria-label={selected ? `Quitar ${option.label}` : `Agregar ${option.label}`}
                   >
                     <Check size={14} />

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { ArrowLeft, BadgeCheck } from 'lucide-react';
 import OnboardingStyles from './components/OnboardingStyles';
 import StampPreviewCard from './components/StampPreviewCard';
@@ -18,8 +19,16 @@ import {
 	ComingSoonPhase,
 } from './components/phases';
 
-export default function OnboardingPage() {
-	const { state, setters, handlers, derived } = useOnboarding();
+interface OnboardingPageProps {
+  initialStep?: number;
+}
+
+export default function OnboardingPage({ initialStep = 1 }: OnboardingPageProps) {
+	const searchParams = useSearchParams();
+	const stepParam = searchParams.get('step');
+	const parsedStep = stepParam ? Number(stepParam) : Number.NaN;
+	const effectiveStep = Number.isFinite(parsedStep) && parsedStep > 0 ? parsedStep : initialStep;
+	const { state, setters, handlers, derived } = useOnboarding(effectiveStep);
 	const {
 		loading,
 		stageIndex,

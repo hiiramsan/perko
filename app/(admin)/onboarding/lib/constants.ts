@@ -23,6 +23,7 @@ export const SYSTEM_OPTIONS: SystemOption[] = [
 		description: 'Acumula puntos por cada compra realizada para después convertirlos en beneficios o descuentos.',
 		details:
 			'La empresa decide cuántos puntos da por peso comprado y a cuántos pesos equivale cada punto. Así puede adaptar la regla a su negocio.',
+		comingSoon: true,
 	},
 	{
 		id: 'levels',

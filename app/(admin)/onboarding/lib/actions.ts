@@ -41,60 +41,101 @@ export async function createBusinessAction(data: CreateBusinessInput) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  // Insertar la empresa
-  const { data: newBusiness, error: insertError } = await supabaseAdmin
+  const { data: existingBusiness, error: fetchError } = await supabaseAdmin
     .from('businesses')
-    .insert([
-      {
+    .select('id')
+    .eq('owner_id', userPayload.id)
+    .maybeSingle();
+
+  if (fetchError) {
+    console.error('Error de Supabase al buscar empresa:', fetchError.message);
+    return { error: `Error en BD al buscar negocio: ${fetchError.message}` };
+  }
+
+  let businessId = existingBusiness?.id as string | undefined;
+
+  if (!businessId) {
+    const { data: newBusiness, error: insertError } = await supabaseAdmin
+      .from('businesses')
+      .insert([
+        {
+          name: data.name,
+          slug: data.slug,
+          logo_url: data.logoUrl || null,
+          color: data.color || null,
+          owner_id: userPayload.id,
+        },
+      ])
+      .select('id')
+      .single();
+
+    if (insertError) {
+      console.error('Error de Supabase al insertar empresa:', insertError.message);
+      return { error: `Error en BD al crear negocio: ${insertError.message}` };
+    }
+
+    businessId = newBusiness.id;
+  } else {
+    const { error: updateError } = await supabaseAdmin
+      .from('businesses')
+      .update({
         name: data.name,
         slug: data.slug,
         logo_url: data.logoUrl || null,
         color: data.color || null,
-        owner_id: userPayload.id,
-      },
-    ])
-    .select()
-    .single();
+      })
+      .eq('id', businessId);
 
-  if (insertError) {
-    console.error('Error de Supabase al insertar empresa:', insertError.message);
-    return { error: `Error en BD al crear negocio: ${insertError.message}` };
+    if (updateError) {
+      console.error('Error de Supabase al actualizar empresa:', updateError.message);
+      return { error: `Error en BD al actualizar negocio: ${updateError.message}` };
+    }
   }
 
   // 3. Insertar configuraciones satélite
-	if (data.selectedSystems.includes('rewards')) {
-		const { error: rewardsError } = await supabaseAdmin
-			.from('business_rewards_programs')
-			.insert([
-				{
-					business_id: newBusiness.id,
-					reward_product: data.rewardProduct,
-					reward_visits: data.rewardVisits
-				}
-			]);
+  if (data.selectedSystems.includes('rewards')) {
+    const { error: rewardsError } = await supabaseAdmin
+      .from('business_rewards_programs')
+      .upsert([
+        {
+          business_id: businessId,
+          reward_product: data.rewardProduct,
+          reward_visits: data.rewardVisits,
+        },
+      ], { onConflict: 'business_id' });
 
-		if (rewardsError) {
-			console.error(rewardsError);
-			return { error: `Falló la configuración de recompensas: ${rewardsError.message}` };
-		}
-	}
+    if (rewardsError) {
+      console.error(rewardsError);
+      return { error: `Falló la configuración de recompensas: ${rewardsError.message}` };
+    }
+  } else {
+    await supabaseAdmin
+      .from('business_rewards_programs')
+      .delete()
+      .eq('business_id', businessId);
+  }
 
-	if (data.selectedSystems.includes('points')) {
-		const { error: pointsError } = await supabaseAdmin
-			.from('business_points_programs')
-			.insert([
-				{
-					business_id: newBusiness.id,
-					points_per_peso: data.pointsPerPeso,
-					pesos_per_point: data.pesosPerPoint
-				}
-			]);
+  if (data.selectedSystems.includes('points')) {
+    const { error: pointsError } = await supabaseAdmin
+      .from('business_points_programs')
+      .upsert([
+        {
+          business_id: businessId,
+          points_per_peso: data.pointsPerPeso,
+          pesos_per_point: data.pesosPerPoint,
+        },
+      ], { onConflict: 'business_id' });
 
-		if (pointsError) {
-			console.error(pointsError);
-			return { error: `Falló la configuración de puntos: ${pointsError.message}` };
-		}
-	}
+    if (pointsError) {
+      console.error(pointsError);
+      return { error: `Falló la configuración de puntos: ${pointsError.message}` };
+    }
+  } else {
+    await supabaseAdmin
+      .from('business_points_programs')
+      .delete()
+      .eq('business_id', businessId);
+  }
 
-  return { success: true, business: newBusiness };
+  return { success: true, business: { id: businessId } };
 }
