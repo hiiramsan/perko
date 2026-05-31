@@ -76,17 +76,25 @@ export async function middleware(request: NextRequest) {
   }
 
   if (userPayload) {
-    if (
+    const isPublicRoute =
       pathname === '/' ||
       pathname.startsWith('/login') ||
       pathname.startsWith('/register') ||
-      pathname.startsWith('/business')
-    ) {
+      pathname.startsWith('/business');
+
+    if (isPublicRoute) {
       if (userPayload.role === 'customer') {
         return NextResponse.redirect(new URL('/cartera', request.url));
       }
+
       if (userPayload.role === 'admin' || userPayload.role === 'staff') {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
+        const onboarding = await getOnboardingStatus(userPayload.id);
+
+        if (onboarding?.status === 'completed') {
+          return NextResponse.redirect(new URL('/dashboard', request.url));
+        }
+
+        return NextResponse.next();
       }
     }
 
@@ -118,8 +126,7 @@ export async function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL('/dashboard', request.url));
           }
         } else if (!isOnboardingRoute) {
-          // If the fetch failed, fail closed for admin routes that require onboarding.
-          return NextResponse.redirect(new URL('/onboarding', request.url));
+          return NextResponse.next();
         }
       }
     }

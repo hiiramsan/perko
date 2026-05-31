@@ -1,30 +1,15 @@
-
 'use client';
 
-import { createClient } from '@/lib/supabase/client';
-import { Suspense } from 'react';
+import { startGoogleAuth } from '@/services/auth';
 
 type GoogleAuthButtonProps = {
   intent?: 'login' | 'register';
   role?: 'admin' | 'customer';
 };
 
-function GoogleButtonLogic({ intent, role }: GoogleAuthButtonProps) {
-  const supabase = createClient();
-
+export default function GoogleAuthButton({ intent, role }: GoogleAuthButtonProps) {
   const handleGoogleLogin = async () => {
-    const redirectUrl = new URL(`${window.location.origin}/callback`);
-
-    if (intent === 'register' && role) {
-      document.cookie = `perko_signup_role=${role}; path=/; max-age=600; samesite=lax`;
-    }
-
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: redirectUrl.toString(),
-      },
-    });
+    const { error } = await startGoogleAuth({ intent, role });
 
     if (error) {
       console.error('Error al iniciar sesión:', error.message);
@@ -45,13 +30,5 @@ function GoogleButtonLogic({ intent, role }: GoogleAuthButtonProps) {
       </svg>
       GOOGLE
     </button>
-  );
-}
-
-export default function GoogleAuthButton({ intent, role }: GoogleAuthButtonProps) {
-  return (
-    <Suspense fallback={<div className="h-[52px] w-full animate-pulse rounded-lg bg-gray-200"></div>}>
-      <GoogleButtonLogic intent={intent} role={role} />
-    </Suspense>
   );
 }

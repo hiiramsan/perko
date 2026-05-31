@@ -1,43 +1,22 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-import { createBusinessAction } from '../lib/actions';
-import { CARD_COLORS, SYSTEM_SELECTION_STAGE_INDEX } from '../lib/constants';
-import { buildSlug, getOrderedSystems } from '../lib/utils';
-
-type OnboardingSnapshot = {
-  status: 'not_started' | 'in_progress' | 'completed';
-  step: number;
-  data?: {
-    name?: string;
-    slug?: string;
-    logoUrl?: string;
-    color?: string;
-    selectedSystems?: string[];
-    rewardProduct?: string;
-    rewardVisits?: number;
-    pointsPerPeso?: number;
-    pesosPerPoint?: number;
-  };
-};
+import { createBusinessAction } from '@/app/(admin)/onboarding/lib/actions';
+import { CARD_COLORS, SYSTEM_SELECTION_STAGE_INDEX } from '@/app/(admin)/onboarding/lib/constants';
+import { buildSlug, getOrderedSystems } from '@/app/(admin)/onboarding/lib/utils';
+import { loadOnboardingSnapshot, saveOnboardingStep, type OnboardingSnapshot } from '@/services/onboarding';
+import { uploadPublicFile } from '@/services/storage';
+import type { ChangeEvent } from 'react';
 
 function getDbStep(stageIndex: number): number {
   return stageIndex + 1;
 }
 
-async function saveStepProgress(
-  step: number,
-  stepData?: OnboardingSnapshot['data'],
-  completed?: boolean
-): Promise<void> {
-  await fetch('/api/onboarding/step', {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ step, stepData, completed }),
-  });
-  // We intentionally don't throw here — a failed progress save is not
-  // critical enough to block the user from continuing. The final
-  // createBusinessAction is the source of truth.
+function isRewardsSystem(systemId: string) {
+  return systemId === 'rewards';
+}
+
+function isPointsSystem(systemId: string) {
+  return systemId === 'points';
 }
 
 export function useOnboarding(initialStep = 1) {
@@ -68,39 +47,32 @@ export function useOnboarding(initialStep = 1) {
     let cancelled = false;
 
     const loadSnapshot = async () => {
-      try {
-        const res = await fetch('/api/onboarding/step', { method: 'GET' });
-        if (!res.ok) return;
+      const snapshot = await loadOnboardingSnapshot();
+      if (cancelled || !snapshot) return;
 
-        const snapshot = (await res.json()) as OnboardingSnapshot;
-        if (cancelled || !snapshot) return;
+      const { data, step, status } = snapshot;
 
-        const { data, step, status } = snapshot;
+      if (data?.name) setBusinessName(data.name);
+      if (data?.slug) {
+        setSlug(data.slug);
+        setSlugTouched(true);
+      }
+      if (data?.logoUrl) {
+        setLogoUrl(data.logoUrl);
+        setLogoPreview(data.logoUrl);
+      }
+      if (data?.color) setCardColor(data.color);
 
-        if (data?.name) setBusinessName(data.name);
-        if (data?.slug) {
-          setSlug(data.slug);
-          setSlugTouched(true);
-        }
-        if (data?.logoUrl) {
-          setLogoUrl(data.logoUrl);
-          setLogoPreview(data.logoUrl);
-        }
-        if (data?.color) setCardColor(data.color);
+      if (data?.selectedSystems?.length) {
+        setSelectedSystems(data.selectedSystems);
+      }
+      if (data?.rewardProduct) setRewardProduct(data.rewardProduct);
+      if (data?.rewardVisits) setRewardVisits(String(data.rewardVisits));
+      if (data?.pointsPerPeso) setPointsPerPeso(String(data.pointsPerPeso));
+      if (data?.pesosPerPoint) setPesosPerPoint(String(data.pesosPerPoint));
 
-        if (data?.selectedSystems?.length) {
-          setSelectedSystems(data.selectedSystems);
-        }
-        if (data?.rewardProduct) setRewardProduct(data.rewardProduct);
-        if (data?.rewardVisits) setRewardVisits(String(data.rewardVisits));
-        if (data?.pointsPerPeso) setPointsPerPeso(String(data.pointsPerPeso));
-        if (data?.pesosPerPoint) setPesosPerPoint(String(data.pesosPerPoint));
-
-        if (status !== 'completed' && step && step > 0) {
-          setResumeStep(step);
-        }
-      } catch {
-        // Ignore snapshot failures; the onboarding flow still works.
+      if (status !== 'completed' && step && step > 0) {
+        setResumeStep(step);
       }
     };
 
@@ -141,6 +113,61 @@ export function useOnboarding(initialStep = 1) {
     ];
   }, [activeSystems]);
 
+  const currentPhase = phases[Math.min(stageIndex, phases.length - 1)];
+
+  const phaseData = currentPhase?.kind === 'system' ? currentPhase.system : null;
+
+  const canContinueCurrentPhase = useMemo(() => {
+    if (!currentPhase) return false;
+
+    if (currentPhase.kind === 'business') return businessName.trim().length > 1;
+    if (currentPhase.kind === 'logo') return Boolean(logoFile || logoUrl);
+    if (currentPhase.kind === 'link') return slug.trim().length > 1;
+    if (currentPhase.kind === 'color') return Boolean(cardColor);
+    if (currentPhase.kind === 'systems') return selectedSystems.length > 0;
+    if (!phaseData) return false;
+
+    if (isRewardsSystem(phaseData.id)) {
+      return rewardProduct.trim().length > 1 && Number(rewardVisits) > 0;
+    }
+
+    if (isPointsSystem(phaseData.id)) {
+      return Number(pointsPerPeso) > 0 && Number(pesosPerPoint) > 0;
+    }
+
+    return true;
+  }, [businessName, cardColor, currentPhase, logoFile, logoUrl, phaseData, pesosPerPoint, pointsPerPeso, rewardProduct, rewardVisits, selectedSystems, slug]);
+
+  const buildStepData = (override?: Partial<OnboardingSnapshot['data']>) => {
+    if (!currentPhase) return undefined;
+
+    const merge = (base?: OnboardingSnapshot['data']) => (override ? { ...(base ?? {}), ...override } : base);
+
+    if (currentPhase.kind === 'business') return merge({ name: businessName, slug });
+    if (currentPhase.kind === 'logo') return merge({ name: businessName, slug, logoUrl });
+    if (currentPhase.kind === 'link') return merge({ slug, logoUrl });
+    if (currentPhase.kind === 'color') return merge({ color: cardColor, logoUrl });
+    if (currentPhase.kind === 'systems') return merge({ selectedSystems, logoUrl });
+
+    if (isRewardsSystem(currentPhase.system.id)) {
+      return merge({
+        selectedSystems,
+        rewardProduct,
+        rewardVisits: Number(rewardVisits) || 0,
+      });
+    }
+
+    if (isPointsSystem(currentPhase.system.id)) {
+      return merge({
+        selectedSystems,
+        pointsPerPeso: Number(pointsPerPeso) || 0,
+        pesosPerPoint: Number(pesosPerPoint) || 0,
+      });
+    }
+
+    return merge({ selectedSystems, logoUrl });
+  };
+
   useEffect(() => {
     if (!resumeStep || resumeAppliedRef.current) return;
     const targetStage = Math.max(0, resumeStep - 1);
@@ -154,91 +181,25 @@ export function useOnboarding(initialStep = 1) {
     }
   }, [resumeStep, selectedSystems, phases.length]);
 
-  const currentPhase = phases[Math.min(stageIndex, phases.length - 1)];
   const progress = useMemo(() => {
     if (phases.length <= 1) return 0;
     return (stageIndex / (phases.length - 1)) * 100;
   }, [phases.length, stageIndex]);
-
-  const canContinue = useMemo(() => {
-    if (!currentPhase) return false;
-    switch (currentPhase.kind) {
-      case 'business': return businessName.trim().length > 1;
-      case 'logo':     return Boolean(logoFile || logoUrl);
-      case 'link':     return slug.trim().length > 1;
-      case 'color':    return Boolean(cardColor);
-      case 'systems':  return selectedSystems.length > 0;
-      case 'system':
-        switch (currentPhase.system.id) {
-          case 'rewards':
-            return rewardProduct.trim().length > 1 && Number(rewardVisits) > 0;
-          case 'points':
-            return Number(pointsPerPeso) > 0 && Number(pesosPerPoint) > 0;
-          default: return true;
-        }
-      default: return false;
-    }
-  }, [businessName, cardColor, currentPhase, logoFile, logoUrl, pointsPerPeso, pesosPerPoint, rewardProduct, rewardVisits, selectedSystems, slug]);
-
-  const getStepData = (override?: Partial<OnboardingSnapshot['data']>) => {
-    if (!currentPhase) return undefined;
-    const merge = (base?: OnboardingSnapshot['data']) =>
-      override ? { ...(base ?? {}), ...override } : base;
-
-    switch (currentPhase.kind) {
-      case 'business':
-        return merge({ name: businessName, slug });
-      case 'logo':
-        return merge({ name: businessName, slug, logoUrl });
-      case 'link':
-        return merge({ slug, logoUrl });
-      case 'color':
-        return merge({ color: cardColor, logoUrl });
-      case 'systems':
-        return merge({ selectedSystems, logoUrl });
-      case 'system':
-        switch (currentPhase.system.id) {
-          case 'rewards':
-            return merge({
-              selectedSystems,
-              rewardProduct,
-              rewardVisits: Number(rewardVisits) || 0,
-            });
-          case 'points':
-            return merge({
-              selectedSystems,
-              pointsPerPeso: Number(pointsPerPeso) || 0,
-              pesosPerPoint: Number(pesosPerPoint) || 0,
-            });
-          default:
-            return merge({ selectedSystems, logoUrl });
-        }
-      default:
-        return undefined;
-    }
-  };
+  const canContinue = useMemo(() => canContinueCurrentPhase, [canContinueCurrentPhase]);
 
   const uploadLogo = async () => {
     if (!logoFile) return '';
 
-    const supabase = createClient();
-    const fileExt = logoFile.name.split('.').pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
-    const { error: uploadError } = await supabase.storage
-      .from('logos')
-      .upload(fileName, logoFile);
-
-    if (uploadError) {
-      console.error('Error al subir el logo:', uploadError);
+    try {
+      return await uploadPublicFile('logos', logoFile);
+    } catch (error) {
+      console.error('Error al subir el logo:', error);
       alert('Ocurrió un error al subir el logo. Por favor, intenta de nuevo.');
       return '';
     }
-
-    const { data } = supabase.storage.from('logos').getPublicUrl(fileName);
-    return data.publicUrl;
   };
 
-  const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
     setLogoFile(file);
@@ -292,7 +253,7 @@ export function useOnboarding(initialStep = 1) {
 
       if (result?.success) {
         // 🆕 Mark onboarding as fully completed before redirecting
-        await saveStepProgress(phases.length, getStepData({ logoUrl: uploadedLogoUrl || undefined }), true);
+        await saveOnboardingStep(phases.length, buildStepData({ logoUrl: uploadedLogoUrl || undefined }), true);
         router.push('/dashboard');
       }
       return;
@@ -316,12 +277,12 @@ export function useOnboarding(initialStep = 1) {
 
     // 🆕 Persist progress before advancing the UI — fire-and-forget
     //    so there's no visible delay for the user.
-    const stepData = getStepData(
+    const stepData = buildStepData(
       currentPhase?.kind === 'logo'
         ? { logoUrl: uploadedLogoUrlOverride || logoUrl || undefined }
         : undefined
     );
-    saveStepProgress(nextStep, stepData);
+    saveOnboardingStep(nextStep, stepData);
 
     setStageIndex(nextStageIndex);
   };

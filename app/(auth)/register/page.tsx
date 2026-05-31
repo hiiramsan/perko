@@ -14,7 +14,7 @@ export default function RegisterPage() {
       googleIntent="register"
       googleRole="customer"
     >
-      <RegisterForm role="customer" successRedirect="/cartera" />
+      <RegisterForm role="customer" />
     </AuthPageShell>
   );
 }

@@ -14,7 +14,7 @@ export default function BusinessRegisterPage() {
       googleIntent="register"
       googleRole="admin"
     >
-      <RegisterForm role="admin" successRedirect="/onboarding" />
+      <RegisterForm role="admin" />
     </AuthPageShell>
   );
 }

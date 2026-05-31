@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Moon, QrCode, Sun, UserCircle2, BadgeCheck, LogOut, Home, Users, Gift, BarChart2 } from 'lucide-react';
-import StampPreviewCard from '@/app/(admin)/onboarding/components/StampPreviewCard';
+import StampPreviewCard from '@/components/StampPreviewCard';
 import { useAuth } from '@/app/context/AuthContext';
 import { DashboardCardEditorModal } from './components/dashboard-card-editor-modal';
 import { DashboardPerformancePanel } from './components/DashboardPerformancePanel';
@@ -11,7 +11,7 @@ import { RecentScansTable } from './components/RecentScansTable';
 import { PeakHourCard } from './components/PeakHourCard';
 import { TopClientsCard } from './components/TopClientsCard';
 import { dashboardPerformanceMetricsHistorical, dashboardPerformanceMetricsToday, recentScanRows } from './dashboard-data';
-import { useDashboardCardEditor } from './hooks/useDashboardCardEditor';
+import { useDashboardCardEditor } from '@/hooks/useDashboardCardEditor';
 
 export default function DashboardPage() {
 	const { logout } = useAuth();

@@ -6,6 +6,7 @@ import FormField from '../components/FormField';
 import PasswordField from '../components/PasswordField';
 import PrimaryAuthButton from '../components/PrimaryAuthButton';
 import AuthPageShell from '../components/AuthPageShell';
+import { loginUser } from '@/services/auth';
 
 function LoginForm() {
   const router = useRouter();
@@ -32,16 +33,10 @@ function LoginForm() {
     setErrorMsg(null);
     setLoading(true);
 
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, rememberMe }),
-    });
-
-    const result = await response.json();
+    const result = await loginUser({ email, password, rememberMe });
     setLoading(false);
 
-    if (!response.ok) {
+    if (!result.success) {
       setErrorMsg(result.error || 'No pudimos iniciar sesion.');
       return;
     }

@@ -1,4 +1,6 @@
-import { ChangeEventHandler } from 'react';
+'use client';
+
+type ChangeHandler = (event: { target: HTMLInputElement }) => void;
 
 type FormFieldProps = {
   id: string;
@@ -6,7 +8,7 @@ type FormFieldProps = {
   type?: 'text' | 'email' | 'password';
   placeholder?: string;
   value: string;
-  onChange: ChangeEventHandler<HTMLInputElement>;
+  onChange: ChangeHandler;
   required?: boolean;
   autoComplete?: string;
 };

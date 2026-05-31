@@ -1,7 +1,6 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
 
 type UserSession = {
   id: string;
@@ -22,7 +21,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserSession>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
   const fetchSession = async () => {
     try {
@@ -42,10 +40,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     setLoading(true);
-    await fetch('/api/auth/logout', { method: 'POST' });
-    setUser(null);
-    setLoading(false);
-    router.push('/login');
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } finally {
+      setUser(null);
+      setLoading(false);
+      window.location.replace('/login');
+    }
   };
 
   useEffect(() => {

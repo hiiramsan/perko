@@ -1,21 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import FormField from './FormField';
 import PasswordField from './PasswordField';
 import PrimaryAuthButton from './PrimaryAuthButton';
+import { registerUser } from '@/services/auth';
 
 export type RegisterRole = 'admin' | 'customer';
 
 type RegisterFormProps = {
   role: RegisterRole;
-  successRedirect: string;
 };
 
-export default function RegisterForm({ role, successRedirect }: RegisterFormProps) {
-  const router = useRouter();
+export default function RegisterForm({ role }: RegisterFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -35,22 +33,10 @@ export default function RegisterForm({ role, successRedirect }: RegisterFormProp
     }
 
     setLoading(true);
-
-    const response = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email,
-        password,
-        fullName,
-        role,
-      }),
-    });
-
-    const result = await response.json();
+    const result = await registerUser({ email, password, fullName, role });
     setLoading(false);
 
-    if (!response.ok) {
+    if (!result.success) {
       setErrorMsg(result.error || 'Hubo un error en el registro.');
       return;
     }
@@ -60,7 +46,7 @@ export default function RegisterForm({ role, successRedirect }: RegisterFormProp
 
   if (isSuccess) {
     return (
-      <div className="flex flex-col items-center justify-center space-y-4 rounded-xl bg-green-50 p-8 text-center border border-green-200">
+      <div className="flex flex-col items-center justify-center space-y-4 rounded-xl border border-green-200 bg-green-50 p-8 text-center">
         <svg className="h-16 w-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
         </svg>
@@ -68,7 +54,7 @@ export default function RegisterForm({ role, successRedirect }: RegisterFormProp
         <p className="text-green-800">
           Hemos enviado un enlace de confirmación a <strong>{email}</strong>. Haz clic en el enlace para activar tu cuenta.
         </p>
-        <Link href="/login" className="mt-4 text-sm font-semibold text-green-700 hover:text-green-900 underline">
+        <Link href="/login" className="mt-4 text-sm font-semibold text-green-700 underline hover:text-green-900">
           Volver al inicio de sesión
         </Link>
       </div>
@@ -78,7 +64,7 @@ export default function RegisterForm({ role, successRedirect }: RegisterFormProp
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {errorMsg && (
-        <div className="bg-red-50 text-red-600 p-3 text-sm font-semibold border-l-4 border-red-500">
+        <div className="border-l-4 border-red-500 bg-red-50 p-3 text-sm font-semibold text-red-600">
           {errorMsg}
         </div>
       )}

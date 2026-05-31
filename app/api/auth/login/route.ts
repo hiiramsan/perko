@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createSupabaseAdminClient, setSessionCookie, signSessionToken } from '@/lib/server/auth-route-utils';
 import bcrypt from 'bcrypt';
-import { SignJWT } from 'jose';
-
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export async function POST(request: Request) {
   try {
@@ -13,10 +10,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Credenciales incompletas.' }, { status: 400 });
     }
 
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const supabaseAdmin = createSupabaseAdminClient();
 
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
@@ -33,28 +27,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Credenciales invalidas.' }, { status: 401 });
     }
 
-    const customSessionToken = await new SignJWT({
+    const customSessionToken = await signSessionToken({
       id: profile.id,
       email: profile.email,
       role: profile.role,
       name: profile.name,
-    })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setIssuedAt()
-      .setExpirationTime('7d')
-      .sign(JWT_SECRET);
-
-    const response = NextResponse.json({ success: true, role: profile.role });
-    response.cookies.set('perko_session', customSessionToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7,
-      path: '/',
     });
 
+    const response = NextResponse.json({ success: true, role: profile.role });
+    setSessionCookie(response, customSessionToken);
+
     return response;
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

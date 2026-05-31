@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { ArrowLeft, BadgeCheck } from 'lucide-react';
 import OnboardingStyles from './components/OnboardingStyles';
-import StampPreviewCard from './components/StampPreviewCard';
-import { useOnboarding } from './hooks/useOnboarding';
+import StampPreviewCard from '@/components/StampPreviewCard';
+import { useOnboarding } from '@/hooks/useOnboarding';
 import { getCardContrastColor } from './lib/utils';
 import { COLOR_STAGE_INDEX } from './lib/constants';
 import {

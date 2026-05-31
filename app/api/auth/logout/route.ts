@@ -1,16 +1,9 @@
 import { NextResponse } from 'next/server';
+import { clearSessionCookie } from '@/lib/server/auth-route-utils';
 
 export async function POST() {
   const response = NextResponse.json({ success: true });
-  
-  // Clear the session cookie by setting its maxAge to 0
-  response.cookies.set('perko_session', '', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 0,
-    path: '/',
-  });
 
+  clearSessionCookie(response);
   return response;
 }

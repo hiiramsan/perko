@@ -2,7 +2,7 @@
 
 import type { ChangeEvent } from 'react';
 import { Activity } from 'lucide-react';
-import StampPreviewCard from '@/app/(admin)/onboarding/components/StampPreviewCard';
+import StampPreviewCard from '@/components/StampPreviewCard';
 import { DashboardCardModal } from './DashboardCardModal';
 
 type DashboardCardEditorModalProps = {

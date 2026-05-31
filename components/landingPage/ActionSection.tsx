@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import { Highlighter } from "../ui/highlighter"
-import StampPreviewCard from "@/app/(admin)/onboarding/components/StampPreviewCard"
+import StampPreviewCard from "@/components/StampPreviewCard"
 
 
 // currently not being used, planned for the future

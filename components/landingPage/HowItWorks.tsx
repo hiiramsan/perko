@@ -1,10 +1,32 @@
 "use client";
 
-import Image from "next/image";
 import { Highlighter } from "../ui/highlighter";
 
-export default function HowItWorks() {
+const steps = [
+  {
+    number: '1',
+    src: '/step1.png',
+    alt: 'Scan purchase',
+    title: 'Scan',
+    description: 'Open the wallet and scan after purchase.',
+  },
+  {
+    number: '2',
+    src: '/step2.png',
+    alt: 'Collect stamps',
+    title: 'Collect',
+    description: 'Every visit drops a stamp into your card.',
+  },
+  {
+    number: '3',
+    src: '/step3.png',
+    alt: 'Unlock reward',
+    title: 'Reward',
+    description: 'Redeem a free item once you complete the card.',
+  },
+];
 
+export default function HowItWorks() {
   return (
     <section
       id="how-it-works"
@@ -29,68 +51,22 @@ export default function HowItWorks() {
 
       <div className="relative mx-auto mt-15 flex-1">
         <div className="flex h-full w-full max-w-297 flex-col gap-10 lg:flex-row lg:items-stretch lg:gap-8 lg:bg-size-[calc(100%-3rem)_3px] lg:bg-position-[left_center]">
-          <div className="flex flex-1 flex-col">
-            <div className="relative">
-              <div className="absolute -left-4 -top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black text-sm font-semibold text-white">
-                1
-              </div>
-              <div className="aspect-square w-full max-w-86 overflow-hidden rounded-3xl border-2 border-black bg-white shadow-[0_18px_40px_-28px_rgba(15,23,42,0.45)] sm:max-w-92.5">
-                <div className="flex h-full w-full items-center justify-center">
-                  <Image
-                    src="/step1.png"
-                    alt="Scan purchase"
-                    width={260}
-                    height={180}
-                    className="h-full w-full object-cover"
-                  />
+          {steps.map((step) => (
+            <div key={step.number} className="flex flex-1 flex-col">
+              <div className="relative">
+                <div className="absolute -left-4 -top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black text-sm font-semibold text-white">
+                  {step.number}
+                </div>
+                <div className="aspect-square w-full max-w-86 overflow-hidden rounded-3xl border-2 border-black bg-white shadow-[0_18px_40px_-28px_rgba(15,23,42,0.45)] sm:max-w-92.5">
+                  <div className="flex h-full w-full items-center justify-center">
+                    <img src={step.src} alt={step.alt} className="h-full w-full object-cover" />
+                  </div>
                 </div>
               </div>
+              <p className="mt-4 text-md font-semibold uppercase tracking-[0.18em] text-black">{step.title}</p>
+              <p className="mt-1 text-md text-[#0f172a]">{step.description}</p>
             </div>
-            <p className="mt-4 text-md font-semibold uppercase tracking-[0.18em] text-black">Scan</p>
-            <p className="mt-1 text-md text-[#0f172a]">Open the wallet and scan after purchase.</p>
-          </div>
-
-          <div className="flex flex-1 flex-col">
-            <div className="relative">
-              <div className="absolute -left-4 -top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black text-sm font-semibold text-white">
-                2
-              </div>
-              <div className="aspect-square w-full max-w-86 overflow-hidden rounded-3xl border-2 border-black bg-white shadow-[0_18px_40px_-28px_rgba(15,23,42,0.45)] sm:max-w-92.5">
-                <div className="flex h-full w-full items-center justify-center">
-                  <Image
-                    src="/step2.png"
-                    alt="Collect stamps"
-                    width={260}
-                    height={180}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-              </div>
-            </div>
-            <p className="mt-4 text-md font-semibold uppercase tracking-[0.18em] text-black">Collect</p>
-            <p className="mt-1 text-md text-[#0f172a]">Every visit drops a stamp into your card.</p>
-          </div>
-
-          <div className="flex flex-1 flex-col">
-            <div className="relative">
-              <div className="absolute -left-4 -top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black text-sm font-semibold text-white">
-                3
-              </div>
-              <div className="aspect-square w-full max-w-86 overflow-hidden rounded-3xl border-2 border-black bg-white shadow-[0_18px_40px_-28px_rgba(15,23,42,0.45)] sm:max-w-92.5">
-                <div className="flex h-full w-full items-center justify-center">
-                  <Image
-                    src="/step3.png"
-                    alt="Unlock reward"
-                    width={260}
-                    height={180}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-              </div>
-            </div>
-            <p className="mt-4 text-md font-semibold uppercase tracking-[0.18em] text-[">Reward</p>
-            <p className="mt-1 text-m text-[#0f172a]">Redeem a free item once you complete the card.</p>
-          </div>
+          ))}
         </div>
       </div>
     </section>

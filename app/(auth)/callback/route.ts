@@ -1,8 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { SignJWT } from 'jose';
-
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+import { createSupabaseAdminClient, setSessionCookie, signSessionToken } from '@/lib/server/auth-route-utils';
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
@@ -18,67 +16,106 @@ export async function GET(request: NextRequest) {
   if (error) return NextResponse.redirect(`${origin}/login?error=auth-failed`);
 
   const { data: { user } } = await supabase.auth.getUser();
+  const supabaseAdmin = createSupabaseAdminClient();
 
   if (user) {
-    let { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle();
+    let { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('id, email, role, name')
+      .eq('id', user.id)
+      .maybeSingle();
 
-    // (Identity bridging logic remains identical here if needed...)
+    if (!profile && user.email) {
+      const { data: profileByEmail } = await supabaseAdmin
+        .from('profiles')
+        .select('id, email, role, name')
+        .eq('email', user.email)
+        .maybeSingle();
+
+      profile = profileByEmail ?? null;
+    }
 
     let currentRole = profile?.role;
     let isNewProfile = false;
-    if (!currentRole) {
+
+    if (!profile) {
       currentRole = signupRole || 'customer';
-      const { data: newProfile } = await supabase
+
+      const { data: insertedProfile, error: insertError } = await supabaseAdmin
         .from('profiles')
         .insert([{
           id: user.id,
           email: user.email!,
           name: user.user_metadata?.full_name || 'Usuario de Google',
           role: currentRole,
-          avatar_url: user.user_metadata?.avatar_url
+          avatar_url: user.user_metadata?.avatar_url,
         }])
-        .select().single();
-      profile = newProfile;
-      isNewProfile = true;
+        .select('id, email, role, name')
+        .single();
+
+      if (insertError) {
+        if (insertError.code === '23505' && user.email) {
+          const { data: profileByEmail } = await supabaseAdmin
+            .from('profiles')
+            .select('id, email, role, name')
+            .eq('email', user.email)
+            .maybeSingle();
+
+          if (profileByEmail) {
+            profile = profileByEmail;
+            currentRole = profile.role;
+          } else {
+            return NextResponse.redirect(`${origin}/login?error=db-error`);
+          }
+        } else {
+          return NextResponse.redirect(`${origin}/login?error=db-error`);
+        }
+      } else {
+        profile = insertedProfile;
+        isNewProfile = true;
+      }
     }
 
-    // --- YOUR CUSTOM SESSION GENERATION LAYER ---
-    // Create a custom session token valid for 7 days
-    const customSessionToken = await new SignJWT({ 
-        id: profile.id, 
-        email: profile.email, 
-        role: profile.role,
-        name: profile.name 
-      })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setIssuedAt()
-      .setExpirationTime('7d')
-      .sign(JWT_SECRET);
+    if (!profile) {
+      return NextResponse.redirect(`${origin}/login?error=unknown`);
+    }
 
-    // Create the redirect response
+    if (!currentRole) {
+      currentRole = 'customer';
+    }
+
+    if (signupRole === 'admin') {
+      currentRole = 'admin';
+
+      if (profile.role !== 'admin') {
+        await supabaseAdmin
+          .from('profiles')
+          .update({ role: 'admin' })
+          .eq('id', profile.id);
+        profile.role = 'admin';
+      }
+    }
+
+    const customSessionToken = await signSessionToken({
+      id: profile.id,
+      email: profile.email,
+      role: currentRole,
+      name: profile.name,
+    });
+
     let targetUrl = currentRole === 'customer' ? `${origin}/cartera` : `${origin}/dashboard`;
-    if (isNewProfile && currentRole === 'admin') {
+    if (signupRole === 'admin' || (isNewProfile && currentRole === 'admin')) {
       targetUrl = `${origin}/onboarding`;
     }
 
-    return createSessionResponse(targetUrl, customSessionToken, signupRoleCookie ? 'perko_signup_role' : null);
+    const response = NextResponse.redirect(targetUrl);
+    setSessionCookie(response, customSessionToken);
+    if (signupRoleCookie) {
+      response.cookies.set('perko_signup_role', '', { maxAge: 0, path: '/' });
+    }
+
+    return response;
   }
 
   return NextResponse.redirect(`${origin}/login?error=unknown`);
-}
-
-// Helper to set the custom secure cookie on redirect
-function createSessionResponse(url: string, token: string, signupCookieName: string | null) {
-  const response = NextResponse.redirect(url);
-  response.cookies.set('perko_session', token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-    path: '/',
-  });
-  if (signupCookieName) {
-    response.cookies.set(signupCookieName, '', { maxAge: 0, path: '/' });
-  }
-  return response;
 }

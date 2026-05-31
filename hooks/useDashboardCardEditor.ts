@@ -2,8 +2,8 @@
 
 import type { ChangeEvent } from 'react';
 import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { getDashboardBusiness, updateBusinessCardProps } from '../actions';
+import { getDashboardBusiness, updateBusinessCardProps } from '@/app/(admin)/dashboard/actions';
+import { uploadPublicFile } from '@/services/storage';
 
 export function useDashboardCardEditor() {
 	const [businessId, setBusinessId] = useState<string | null>(null);
@@ -57,21 +57,14 @@ export function useDashboardCardEditor() {
 		let uploadedLogoUrl = tempLogoPreview;
 
 		if (logoFile) {
-			const supabase = createClient();
-			const fileExt = logoFile.name.split('.').pop() || 'png';
-			const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
-
-			const { error: uploadError } = await supabase.storage.from('logos').upload(fileName, logoFile);
-
-			if (uploadError) {
-				console.error('Error al subir el logo:', uploadError);
+			try {
+				uploadedLogoUrl = await uploadPublicFile('logos', logoFile);
+			} catch (error) {
+				console.error('Error al subir el logo:', error);
 				alert('Ocurrió un error al subir el nuevo logo. Intenta nuevamente.');
 				setIsSaving(false);
 				return false;
 			}
-
-			const { data } = supabase.storage.from('logos').getPublicUrl(fileName);
-			uploadedLogoUrl = data.publicUrl;
 		}
 
 		const result = await updateBusinessCardProps(businessId, tempColor, logoFile ? uploadedLogoUrl : undefined);
