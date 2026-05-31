@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Moon, QrCode, Sun, UserCircle2, BadgeCheck, LogOut, Home, Users, Gift, BarChart2 } from 'lucide-react';
 import StampPreviewCard from '@/components/StampPreviewCard';
 import { useAuth } from '@/app/context/AuthContext';
-import { DashboardCardEditorModal } from './components/dashboard-card-editor-modal';
+import { DashboardCardEditorModal } from './components/DashboardCardEditorModal';
 import { DashboardPerformancePanel } from './components/DashboardPerformancePanel';
 import { DashboardQrModal } from './components/DashboardQrModal';
 import { RecentScansTable } from './components/RecentScansTable';
