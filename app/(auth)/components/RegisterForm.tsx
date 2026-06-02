@@ -28,7 +28,7 @@ export default function RegisterForm({ role }: RegisterFormProps) {
     setErrorMsg(null);
 
     if (password !== confirmPassword) {
-      setErrorMsg('Las contrasenas no coinciden.');
+      setErrorMsg('Las contraseñas no coinciden.');
       return;
     }
 
@@ -53,7 +53,7 @@ export default function RegisterForm({ role }: RegisterFormProps) {
         <p className="text-green-800">
           Hemos enviado un enlace de confirmación a <strong>{email}</strong>. Haz clic en el enlace para activar tu cuenta.
         </p>
-        <Link href="/login" className="mt-4 text-sm font-semibold text-green-700 underline hover:text-green-900">
+        <Link href={`/login?role=${role}`} className="mt-4 text-sm font-semibold text-green-700 underline hover:text-green-900">
           Volver al inicio de sesión
         </Link>
       </div>
@@ -81,7 +81,7 @@ export default function RegisterForm({ role }: RegisterFormProps) {
 
       <FormField
         id="email"
-        label="Correo"
+        label="Correo electrónico"
         type="email"
         placeholder="tu@correo.com"
         value={email}
@@ -92,8 +92,8 @@ export default function RegisterForm({ role }: RegisterFormProps) {
 
       <PasswordField
         id="password"
-        label="Contrasena"
-        placeholder="Crea una contrasena"
+        label="Contraseña"
+        placeholder="Crea una contraseña"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         autoComplete="new-password"
@@ -102,8 +102,8 @@ export default function RegisterForm({ role }: RegisterFormProps) {
 
       <PasswordField
         id="confirmPassword"
-        label="Confirmar contrasena"
-        placeholder="Repite tu contrasena"
+        label="Confirmar contraseña"
+        placeholder="Repite tu contraseña"
         value={confirmPassword}
         onChange={(e) => setConfirmPassword(e.target.value)}
         autoComplete="new-password"
@@ -119,17 +119,17 @@ export default function RegisterForm({ role }: RegisterFormProps) {
           required
         />
         <span className="text-sm text-gray-600">
-          Acepto los terminos y condiciones y la politica de privacidad.
+          Acepto los términos y condiciones y la política de privacidad.
         </span>
       </label>
 
       <PrimaryAuthButton label={loading ? 'Procesando...' : 'Crear cuenta'} disabled={loading} />
 
       <Link
-        href="/login"
+        href={`/login?role=${role}`}
         className="block w-full rounded-lg border border-[#9da5af] bg-white py-3 text-center text-sm font-bold uppercase tracking-wider text-[#0f172a] transition hover:border-[#7a838f] hover:text-[#1f2a44]"
       >
-        Inicia sesion
+        Inicia sesión
       </Link>
     </form>
   );

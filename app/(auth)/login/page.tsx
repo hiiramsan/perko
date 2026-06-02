@@ -12,6 +12,8 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
+  const urlRole = searchParams.get('role') === 'admin' ? 'admin' : 'customer';
+
   const [rememberMe, setRememberMe] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,7 +21,6 @@ function LoginForm() {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Leer los errores que llegan redirigidos desde el link mágico del correo
   useEffect(() => {
     const errorParam = searchParams.get('error');
     if (errorParam === 'invalid-token') setErrorMsg('El enlace de validación es inválido.');
@@ -44,16 +45,16 @@ function LoginForm() {
       }
     } catch (err: any) {
       setLoading(false);
-      setErrorMsg(err.message || 'No pudimos iniciar sesion.');
+      setErrorMsg(err.message || 'No pudimos iniciar sesión.');
     }
   };
 
   return (
     <AuthPageShell
-      title="INICIA SESION"
-      subtitle="INGRESA TUS CREDENCIALES"
+      title="INICIA SESIÓN"
+      subtitle={urlRole === 'admin' ? 'PANEL DE NEGOCIOS' : 'CLUB DE RECOMPENSAS'}
       footerText="¿No tienes cuenta?"
-      footerHref="/business"
+      footerHref={urlRole === 'admin' ? '/register?role=admin' : '/register?role=customer'}
       footerLinkLabel="CREAR UNA"
       googleIntent="login"
     >
@@ -71,7 +72,7 @@ function LoginForm() {
 
         <FormField
           id="email"
-          label="Correo"
+          label="Correo electrónico"
           type="email"
           placeholder="tu@correo.com"
           value={email}
@@ -82,8 +83,8 @@ function LoginForm() {
 
         <PasswordField
           id="password"
-          label="Contrasena"
-          placeholder="Ingresa tu contrasena"
+          label="Contraseña"
+          placeholder="Ingresa tu contraseña"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           autoComplete="current-password"
@@ -98,14 +99,11 @@ function LoginForm() {
               onChange={(e) => setRememberMe(e.target.checked)}
               className="h-4 w-4 rounded border-gray-300 text-[#2A9D8F] focus:ring-[#2A9D8F] accent-[#05668D] cursor-pointer"
             />
-            <span className="text-sm text-gray-600">Recuerdame</span>
+            <span className="text-sm text-gray-600">Recuérdame</span>
           </label>
-          {/* <a href="#" className="text-sm font-semibold text-[#ef4f2f] transition hover:text-[#c94223]">
-            OLVIDE MI CONTRASENA
-          </a> */}
         </div>
 
-        <PrimaryAuthButton label={loading ? 'Procesando...' : 'Inicia sesion'} disabled={loading} />
+        <PrimaryAuthButton label={loading ? 'Procesando...' : 'Inicia sesión'} disabled={loading} />
       </form>
     </AuthPageShell>
   );

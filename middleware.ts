@@ -73,7 +73,8 @@ export async function middleware(request: NextRequest) {
     ) {
       return NextResponse.next();
     }
-    return NextResponse.redirect(new URL('/login', request.url));
+    const targetRole = pathname.startsWith('/cartera') ? 'customer' : 'admin';
+    return NextResponse.redirect(new URL(`/login?role=${targetRole}`, request.url));
   }
 
   if (userPayload) {

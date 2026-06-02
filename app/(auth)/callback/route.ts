@@ -18,6 +18,13 @@ export async function GET(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   const supabaseAdmin = createSupabaseAdminClient();
 
+  const findProfileByEmail = (email: string) =>
+    supabaseAdmin
+      .from('profiles')
+      .select('id, email, role, name')
+      .eq('email', email)
+      .maybeSingle();
+
   if (user) {
     let { data: profile } = await supabaseAdmin
       .from('profiles')
@@ -26,12 +33,7 @@ export async function GET(request: NextRequest) {
       .maybeSingle();
 
     if (!profile && user.email) {
-      const { data: profileByEmail } = await supabaseAdmin
-        .from('profiles')
-        .select('id, email, role, name')
-        .eq('email', user.email)
-        .maybeSingle();
-
+      const { data: profileByEmail } = await findProfileByEmail(user.email);
       profile = profileByEmail ?? null;
     }
 
@@ -55,12 +57,7 @@ export async function GET(request: NextRequest) {
 
       if (insertError) {
         if (insertError.code === '23505' && user.email) {
-          const { data: profileByEmail } = await supabaseAdmin
-            .from('profiles')
-            .select('id, email, role, name')
-            .eq('email', user.email)
-            .maybeSingle();
-
+          const { data: profileByEmail } = await findProfileByEmail(user.email);
           if (profileByEmail) {
             profile = profileByEmail;
             currentRole = profile.role;
@@ -103,10 +100,10 @@ export async function GET(request: NextRequest) {
       name: profile.name,
     });
 
-    let targetUrl = currentRole === 'customer' ? `${origin}/cartera` : `${origin}/dashboard`;
-    if (signupRole === 'admin' || (isNewProfile && currentRole === 'admin')) {
-      targetUrl = `${origin}/onboarding`;
-    }
+    const needsOnboarding = signupRole === 'admin' || (isNewProfile && currentRole === 'admin');
+    const targetUrl = needsOnboarding
+      ? `${origin}/onboarding`
+      : currentRole === 'customer' ? `${origin}/cartera` : `${origin}/dashboard`;
 
     const response = NextResponse.redirect(targetUrl);
     setSessionCookie(response, customSessionToken);

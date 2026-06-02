@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { createBusinessAction } from '@/app/actions/onboarding';
 import { CARD_COLORS, SYSTEM_SELECTION_STAGE_INDEX } from '@/app/(admin)/onboarding/lib/constants';
 import { buildSlug, getOrderedSystems } from '@/app/(admin)/onboarding/lib/utils';
 import { loadOnboardingSnapshot, saveOnboardingStepAction, type OnboardingSnapshot } from '@/app/actions/onboarding';
@@ -232,7 +231,7 @@ export function useOnboarding(initialStep = 1) {
         return;
       }
 
-      const result = await createBusinessAction({
+      const finalStepData = {
         name: businessName,
         slug,
         logoUrl: uploadedLogoUrl || undefined,
@@ -242,7 +241,9 @@ export function useOnboarding(initialStep = 1) {
         rewardVisits: Number(rewardVisits) || 0,
         pointsPerPeso: Number(pointsPerPeso) || 0,
         pesosPerPoint: Number(pesosPerPoint) || 0,
-      });
+      };
+      
+      const result = await saveOnboardingStepAction(phases.length, finalStepData, true);
 
       setLoading(false);
 
@@ -252,8 +253,6 @@ export function useOnboarding(initialStep = 1) {
       }
 
       if (result?.success) {
-        // 🆕 Mark onboarding as fully completed before redirecting
-        await saveOnboardingStepAction(phases.length, buildStepData({ logoUrl: uploadedLogoUrl || undefined }), true);
         router.push('/dashboard');
       }
       return;
@@ -282,7 +281,7 @@ export function useOnboarding(initialStep = 1) {
         ? { logoUrl: uploadedLogoUrlOverride || logoUrl || undefined }
         : undefined
     );
-    saveOnboardingStepAction(nextStep, stepData).catch(() => {});
+    saveOnboardingStepAction(nextStep, stepData).catch(() => { });
 
     setStageIndex(nextStageIndex);
   };
