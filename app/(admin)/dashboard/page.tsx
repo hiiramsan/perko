@@ -23,6 +23,7 @@ export default function DashboardPage() {
 
 	const {
 		businessName,
+		slug,
 		logoPreview,
 		cardColor,
 		tempColor,
@@ -187,7 +188,12 @@ export default function DashboardPage() {
 				onSave={handleSaveCard}
 			/>
 
-			<DashboardQrModal open={isQrModalOpen} onClose={() => setIsQrModalOpen(false)} />
+			<DashboardQrModal 
+				open={isQrModalOpen} 
+				onClose={() => setIsQrModalOpen(false)} 
+				slug={slug} 
+				logoUrl={logoPreview} 
+			/>
 		</main>
 	);
 }

@@ -7,9 +7,11 @@ import { DashboardQrGraphic } from './DashboardQrGraphic';
 type DashboardQrModalProps = {
 	open: boolean;
 	onClose: () => void;
+	slug: string;
+	logoUrl?: string;
 };
 
-export function DashboardQrModal({ open, onClose }: DashboardQrModalProps) {
+export function DashboardQrModal({ open, onClose, slug, logoUrl }: DashboardQrModalProps) {
 	useEffect(() => {
 		if (!open) return;
 
@@ -50,7 +52,7 @@ export function DashboardQrModal({ open, onClose }: DashboardQrModalProps) {
 				<div className="mx-auto mt-6 w-full max-w-88 rounded-[2rem] border border-[#dbe4ec] bg-[#f8fbfd] p-4 sm:p-5">
 					<div className="rounded-[1.5rem] border border-[#edf2f7] bg-white p-4">
 						<div className="aspect-square w-full overflow-hidden rounded-[1.25rem] bg-white p-2 sm:p-3">
-							<DashboardQrGraphic />
+							<DashboardQrGraphic slug={slug} logoUrl={logoUrl} />
 						</div>
 					</div>
 				</div>

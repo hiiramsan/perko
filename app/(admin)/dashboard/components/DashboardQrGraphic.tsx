@@ -1,48 +1,58 @@
 'use client';
+import { QRCodeSVG } from 'qrcode.react';
 
 type DashboardQrGraphicProps = {
+	slug: string;
+	logoUrl?: string;
 	className?: string;
+	logoSize?: number;
 };
 
-export function DashboardQrGraphic({ className }: DashboardQrGraphicProps) {
+export function DashboardQrGraphic({ slug, logoUrl, className, logoSize = 64 }: DashboardQrGraphicProps) {
+	// En desarrollo apunta a localhost, en producción usará dominio real de forma automática
+	const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+	const clientJoinUrl = `${baseUrl}/join/${slug}`;
 	return (
-		<svg viewBox="0 0 240 240" className={className ?? 'h-full w-full'} role="img" aria-label="QR del negocio">
-			<rect width="240" height="240" rx="28" fill="#ffffff" />
-			<rect x="18" y="18" width="204" height="204" rx="18" fill="#f8fbfd" />
-
-			<rect x="36" y="36" width="48" height="48" rx="10" fill="#0f172a" />
-			<rect x="48" y="48" width="24" height="24" rx="6" fill="#ffffff" />
-
-			<rect x="156" y="36" width="48" height="48" rx="10" fill="#0f172a" />
-			<rect x="168" y="48" width="24" height="24" rx="6" fill="#ffffff" />
-
-			<rect x="36" y="156" width="48" height="48" rx="10" fill="#0f172a" />
-			<rect x="48" y="168" width="24" height="24" rx="6" fill="#ffffff" />
-
-			<g fill="#0f172a">
-				<rect x="104" y="40" width="12" height="12" rx="3" />
-				<rect x="128" y="40" width="12" height="12" rx="3" />
-				<rect x="104" y="64" width="12" height="12" rx="3" />
-				<rect x="128" y="64" width="12" height="12" rx="3" />
-				<rect x="96" y="96" width="12" height="12" rx="3" />
-				<rect x="120" y="96" width="12" height="12" rx="3" />
-				<rect x="144" y="96" width="12" height="12" rx="3" />
-				<rect x="96" y="120" width="12" height="12" rx="3" />
-				<rect x="120" y="120" width="12" height="12" rx="3" />
-				<rect x="144" y="120" width="12" height="12" rx="3" />
-				<rect x="96" y="144" width="12" height="12" rx="3" />
-				<rect x="120" y="144" width="12" height="12" rx="3" />
-				<rect x="144" y="144" width="12" height="12" rx="3" />
-				<rect x="176" y="104" width="12" height="12" rx="3" />
-				<rect x="176" y="128" width="12" height="12" rx="3" />
-				<rect x="176" y="152" width="12" height="12" rx="3" />
-				<rect x="104" y="176" width="12" height="12" rx="3" />
-				<rect x="128" y="176" width="12" height="12" rx="3" />
-				<rect x="152" y="176" width="12" height="12" rx="3" />
-				<rect x="64" y="104" width="12" height="12" rx="3" />
-				<rect x="64" y="128" width="12" height="12" rx="3" />
-				<rect x="64" y="152" width="12" height="12" rx="3" />
-			</g>
-		</svg>
+		<div className={className ?? 'flex h-full w-full items-center justify-center p-2 bg-white rounded-xl shadow-inner'}>
+			<div className="relative flex h-full w-full max-h-full max-w-full items-center justify-center">
+				<QRCodeSVG
+					value={clientJoinUrl}
+					size={256} 
+					bgColor="#ffffff"
+					fgColor="#0f172a" 
+					level="M" // Nivel de tolerancia a errores medio
+					includeMargin={false}
+					className="h-full w-full max-h-full max-w-full"
+					imageSettings={
+						logoUrl
+							? {
+									src: 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
+									x: undefined,
+									y: undefined,
+									height: logoSize + 15,
+									width: logoSize + 15,
+									excavate: true, 
+							  }
+							: undefined
+					}
+				/>
+				{logoUrl && (
+					<svg
+						viewBox="0 0 256 256"
+						className="absolute inset-0 h-full w-full max-h-full max-w-full pointer-events-none"
+					>
+						{/* La imagen superpuesta en su tamaño exacto */}
+						<image
+							href={logoUrl}
+							x={128 - logoSize / 2}
+							y={128 - logoSize / 2}
+							width={logoSize}
+							height={logoSize}
+							preserveAspectRatio="xMidYMid slice"
+						/>
+					</svg>
+				)}
+			</div>
+		</div>
 	);
 }

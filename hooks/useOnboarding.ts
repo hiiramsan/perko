@@ -1,10 +1,10 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { createBusinessAction } from '@/app/(admin)/onboarding/lib/actions';
+import { createBusinessAction } from '@/app/actions/onboarding';
 import { CARD_COLORS, SYSTEM_SELECTION_STAGE_INDEX } from '@/app/(admin)/onboarding/lib/constants';
 import { buildSlug, getOrderedSystems } from '@/app/(admin)/onboarding/lib/utils';
-import { loadOnboardingSnapshot, saveOnboardingStep, type OnboardingSnapshot } from '@/services/onboarding';
-import { uploadPublicFile } from '@/services/storage';
+import { loadOnboardingSnapshot, saveOnboardingStepAction, type OnboardingSnapshot } from '@/app/actions/onboarding';
+import { uploadPublicFile } from '@/lib/supabase/storage';
 import type { ChangeEvent } from 'react';
 
 function getDbStep(stageIndex: number): number {
@@ -253,7 +253,7 @@ export function useOnboarding(initialStep = 1) {
 
       if (result?.success) {
         // 🆕 Mark onboarding as fully completed before redirecting
-        await saveOnboardingStep(phases.length, buildStepData({ logoUrl: uploadedLogoUrl || undefined }), true);
+        await saveOnboardingStepAction(phases.length, buildStepData({ logoUrl: uploadedLogoUrl || undefined }), true);
         router.push('/dashboard');
       }
       return;
@@ -282,7 +282,7 @@ export function useOnboarding(initialStep = 1) {
         ? { logoUrl: uploadedLogoUrlOverride || logoUrl || undefined }
         : undefined
     );
-    saveOnboardingStep(nextStep, stepData);
+    saveOnboardingStepAction(nextStep, stepData).catch(() => {});
 
     setStageIndex(nextStageIndex);
   };

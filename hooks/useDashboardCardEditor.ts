@@ -2,12 +2,13 @@
 
 import type { ChangeEvent } from 'react';
 import { useEffect, useState } from 'react';
-import { getDashboardBusiness, updateBusinessCardProps } from '@/app/(admin)/dashboard/actions';
-import { uploadPublicFile } from '@/services/storage';
+import { getDashboardBusiness, updateBusinessCardProps } from '@/app/actions/dashboard';
+import { uploadPublicFile } from '@/lib/supabase/storage';
 
 export function useDashboardCardEditor() {
 	const [businessId, setBusinessId] = useState<string | null>(null);
 	const [businessName, setBusinessName] = useState('Tu negocio');
+	const [slug, setSlug] = useState('');
 	const [logoPreview, setLogoPreview] = useState('');
 	const [tempLogoPreview, setTempLogoPreview] = useState('');
 	const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -21,16 +22,14 @@ export function useDashboardCardEditor() {
 
 			setBusinessId(business.id);
 			setBusinessName(business.name || 'Tu negocio');
+			setSlug(business.slug || '');
 
-			if (business.logo_url) {
-				setLogoPreview(business.logo_url);
-				setTempLogoPreview(business.logo_url);
-			}
-
-			if (business.color) {
-				setCardColor(business.color);
-				setTempColor(business.color);
-			}
+			setLogoPreview(business.logo_url);
+			setTempLogoPreview(business.logo_url);
+			
+			setCardColor(business.color);
+			setTempColor(business.color);
+			
 		});
 	}, []);
 
@@ -92,6 +91,7 @@ export function useDashboardCardEditor() {
 
 	return {
 		businessName,
+		slug,
 		logoPreview,
 		cardColor,
 		tempColor,

@@ -1,15 +1,31 @@
 'use client';
 
-import { startGoogleAuth } from '@/services/auth';
+import { createClient } from '@/lib/supabase/client';
 
 type GoogleAuthButtonProps = {
   intent?: 'login' | 'register';
   role?: 'admin' | 'customer';
 };
 
+function setSignupRoleCookie(role?: string) {
+  document.cookie = role
+    ? `perko_signup_role=${role}; path=/; max-age=600; samesite=lax`
+    : 'perko_signup_role=; path=/; max-age=0; samesite=lax';
+}
+
 export default function GoogleAuthButton({ intent, role }: GoogleAuthButtonProps) {
   const handleGoogleLogin = async () => {
-    const { error } = await startGoogleAuth({ intent, role });
+    const supabase = createClient();
+    const redirectUrl = new URL(`${window.location.origin}/callback`);
+
+    setSignupRoleCookie(intent === 'register' ? role : undefined);
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectUrl.toString(),
+      },
+    });
 
     if (error) {
       console.error('Error al iniciar sesión:', error.message);

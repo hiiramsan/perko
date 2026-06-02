@@ -5,7 +5,7 @@ import Link from 'next/link';
 import FormField from './FormField';
 import PasswordField from './PasswordField';
 import PrimaryAuthButton from './PrimaryAuthButton';
-import { registerUser } from '@/services/auth';
+import { registerAction } from '@/app/actions/auth';
 
 export type RegisterRole = 'admin' | 'customer';
 
@@ -33,15 +33,14 @@ export default function RegisterForm({ role }: RegisterFormProps) {
     }
 
     setLoading(true);
-    const result = await registerUser({ email, password, fullName, role });
-    setLoading(false);
-
-    if (!result.success) {
-      setErrorMsg(result.error || 'Hubo un error en el registro.');
-      return;
+    try {
+      await registerAction(email, password, fullName, role, window.location.origin);
+      setLoading(false);
+      setIsSuccess(true);
+    } catch (err: any) {
+      setLoading(false);
+      setErrorMsg(err.message || 'Hubo un error en el registro.');
     }
-
-    setIsSuccess(true);
   };
 
   if (isSuccess) {

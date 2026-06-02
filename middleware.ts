@@ -68,7 +68,8 @@ export async function middleware(request: NextRequest) {
       pathname.startsWith('/login') ||
       pathname.startsWith('/register') ||
       pathname.startsWith('/business') ||
-      pathname.startsWith('/callback')
+      pathname.startsWith('/callback') ||
+      pathname.startsWith('/join')
     ) {
       return NextResponse.next();
     }

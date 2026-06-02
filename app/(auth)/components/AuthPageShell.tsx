@@ -5,7 +5,8 @@ import AuthDivider from './AuthDivider';
 
 type AuthPageShellProps = {
   title: string;
-  subtitle: string;
+  subtitle: string | React.ReactNode;
+  subtitleClassName?: string;
   footerText: string;
   footerHref: string;
   footerLinkLabel: string;
@@ -21,6 +22,7 @@ export default function AuthPageShell({
   footerText,
   footerHref,
   footerLinkLabel,
+  subtitleClassName,
   googleIntent = 'login',
   googleRole,
   footerOnClick,
@@ -47,7 +49,9 @@ export default function AuthPageShell({
         <div className="w-full max-w-md">
           <div className="rounded-none border border-black bg-white p-8 shadow-[10px_10px_0_0_rgba(0,0,0,0.95)] sm:p-10">
             <h1 className="mb-2 text-center text-xl font-bold text-[#0f172a] sm:text-2xl">{title}</h1>
-            <p className="mb-2 text-center text-sm text-gray-600">{subtitle}</p>
+            <p className={`mb-2 text-center text-sm text-gray-600 ${subtitleClassName || ''}`}>
+              {subtitle}
+            </p>
 
             <p className="mb-4 text-center text-sm text-gray-600">con</p>
             <div className="mb-6">

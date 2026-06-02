@@ -6,7 +6,7 @@ import FormField from '../components/FormField';
 import PasswordField from '../components/PasswordField';
 import PrimaryAuthButton from '../components/PrimaryAuthButton';
 import AuthPageShell from '../components/AuthPageShell';
-import { loginUser } from '@/services/auth';
+import { loginAction } from '@/app/actions/auth';
 
 function LoginForm() {
   const router = useRouter();
@@ -33,18 +33,18 @@ function LoginForm() {
     setErrorMsg(null);
     setLoading(true);
 
-    const result = await loginUser({ email, password, rememberMe });
-    setLoading(false);
+    try {
+      const result = await loginAction(email, password, rememberMe);
+      setLoading(false);
 
-    if (!result.success) {
-      setErrorMsg(result.error || 'No pudimos iniciar sesion.');
-      return;
-    }
-
-    if (result.role === 'customer') {
-      router.push('/cartera');
-    } else {
-      router.push('/dashboard');
+      if (result.role === 'customer') {
+        router.push('/cartera');
+      } else {
+        router.push('/dashboard');
+      }
+    } catch (err: any) {
+      setLoading(false);
+      setErrorMsg(err.message || 'No pudimos iniciar sesion.');
     }
   };
 
@@ -53,7 +53,7 @@ function LoginForm() {
       title="INICIA SESION"
       subtitle="INGRESA TUS CREDENCIALES"
       footerText="¿No tienes cuenta?"
-      footerHref="/register"
+      footerHref="/business"
       footerLinkLabel="CREAR UNA"
       googleIntent="login"
     >

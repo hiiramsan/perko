@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { getSessionAction, logoutAction } from '@/app/actions/auth';
 
 type UserSession = {
   id: string;
@@ -24,13 +25,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchSession = async () => {
     try {
-      const res = await fetch('/api/auth/session');
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data.user);
-      } else {
-        setUser(null);
-      }
+      const payload = await getSessionAction();
+      setUser(payload as UserSession);
     } catch {
       setUser(null);
     } finally {
@@ -41,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     setLoading(true);
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await logoutAction();
     } finally {
       setUser(null);
       setLoading(false);
