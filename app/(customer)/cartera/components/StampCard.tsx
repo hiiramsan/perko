@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import { ArrowUpRight, BadgeCheck } from 'lucide-react';
 
@@ -9,6 +11,8 @@ type StampCardProps = {
   cardColor: string;
   stampsFilled: number;
   rewardText: string;
+  programType?: 'rewards' | 'points';
+  currentPoints?: number;
 };
 
 const TOTAL_STAMPS = 10;
@@ -30,10 +34,7 @@ function hexToRgb(hex: string) {
   const normalized = hex.replace('#', '').trim();
   const expanded =
     normalized.length === 3
-      ? normalized
-          .split('')
-          .map((c) => c + c)
-          .join('')
+      ? normalized.split('').map((c) => c + c).join('')
       : normalized;
   const parsed = Number.parseInt(expanded, 16);
   return {
@@ -88,6 +89,8 @@ export default function StampCard({
   cardColor,
   stampsFilled,
   rewardText,
+  programType = 'rewards',
+  currentPoints = 0,
 }: StampCardProps) {
   const palette = getCardPalette(cardColor);
   const stamps = Array.from({ length: TOTAL_STAMPS }, (_, i) => i);
@@ -126,24 +129,37 @@ export default function StampCard({
         </div>
       </div>
 
-      <div className="grid grid-cols-5 gap-2 sm:gap-2.5">
-        {stamps.map((i) => {
-          const filled = i < stampsFilled;
-          return (
-            <div
-              key={`${businessName}-stamp-${i}`}
-              className="flex h-9 w-9 items-center justify-center rounded-full sm:h-10 sm:w-10"
-              style={{
-                backgroundColor: filled ? palette.stampFilledColor : palette.stampEmptyColor,
-              }}
-            >
-              {filled ? (
-                <BadgeCheck size={22} color={palette.stampIconColor} strokeWidth={2} />
-              ) : null}
-            </div>
-          );
-        })}
-      </div>
+      {/* Bloque Central Adaptable (Conserva dimensiones idénticas del diseño anterior) */}
+      {programType === 'rewards' ? (
+        <div className="grid grid-cols-5 gap-2 sm:gap-2.5">
+          {stamps.map((i) => {
+            const filled = i < stampsFilled;
+            return (
+              <div
+                key={`${businessName}-stamp-${i}`}
+                className="flex h-9 w-9 items-center justify-center rounded-full sm:h-10 sm:w-10"
+                style={{
+                  backgroundColor: filled ? palette.stampFilledColor : palette.stampEmptyColor,
+                }}
+              >
+                {filled ? (
+                  <BadgeCheck size={22} color={palette.stampIconColor} strokeWidth={2} />
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        /* Renderizado Simétrico para Monedero de Puntos */
+        <div className="flex h-9 sm:h-10 items-center justify-between px-4 rounded-xl bg-black/15">
+          <span className="text-[0.75rem] font-bold uppercase tracking-wider opacity-75" style={{ color: palette.titleColor }}>
+            Saldo Monedero:
+          </span>
+          <span className="text-lg font-black tracking-tight" style={{ color: palette.titleColor }}>
+            {currentPoints.toFixed(2)} Pts
+          </span>
+        </div>
+      )}
 
       <div className="mt-3 flex items-center justify-center sm:mt-4">
         <p className="text-[0.78rem] font-medium" style={{ color: palette.rewardColor }}>
@@ -152,4 +168,4 @@ export default function StampCard({
       </div>
     </article>
   );
-}2
+}

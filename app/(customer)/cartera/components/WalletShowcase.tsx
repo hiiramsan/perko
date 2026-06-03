@@ -13,6 +13,8 @@ export type WalletCard = {
   stampsFilled: number;
   rewardText: string;
   cardCode: string;
+  programType?: 'rewards' | 'points';
+  currentPoints?: number;
 };
 
 type WalletShowcaseProps = {
@@ -102,6 +104,8 @@ export default function WalletShowcase({ walletCards }: WalletShowcaseProps) {
                   cardColor={card.cardColor}
                   stampsFilled={card.stampsFilled}
                   rewardText={card.rewardText}
+                  programType={card.programType}
+                  currentPoints={card.currentPoints}
                 />
               </div>
             );
@@ -129,6 +133,8 @@ export default function WalletShowcase({ walletCards }: WalletShowcaseProps) {
                 cardColor={card.cardColor}
                 stampsFilled={card.stampsFilled}
                 rewardText={card.rewardText}
+                programType={card.programType}
+                currentPoints={card.currentPoints}
               />
             </div>
           ))}
@@ -217,7 +223,6 @@ export default function WalletShowcase({ walletCards }: WalletShowcaseProps) {
           </div>
         </div>
       )}
-
     </>
   );
 }
