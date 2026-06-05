@@ -5,6 +5,7 @@ import { jwtVerify, SignJWT } from 'jose';
 import bcrypt from 'bcrypt';
 import { createClient } from '@supabase/supabase-js';
 import { sendVerificationEmail } from '@/lib/email';
+import crypto from 'crypto';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
 
@@ -101,15 +102,44 @@ export async function registerAction(
     throw new Error('Este correo ya está registrado.');
   }
 
-  const verificationToken = await new SignJWT({ email, password, fullName, role })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime('1h')
-    .sign(JWT_SECRET);
+  // Hash the password before storing in the verification table
+  const hashedPassword = await bcrypt.hash(password, 12);
 
-  const verifyUrl = `${origin}/api/auth/verify?token=${verificationToken}`;
+  // Create a secure random token and store only its SHA-256 hash in DB
+  const token = crypto.randomBytes(32).toString('hex');
+  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
 
-  await sendVerificationEmail(email, fullName, verifyUrl);
+  const expiresAt = new Date(Date.now() + 1000 * 60 * 60).toISOString(); // 1 hour
+
+  const { error: insertError } = await supabaseAdmin
+    .from('email_verification_tokens')
+    .insert([
+      {
+        email,
+        password_hash: hashedPassword,
+        full_name: fullName,
+        role,
+        token_hash: tokenHash,
+        expires_at: expiresAt,
+      },
+    ]);
+
+  if (insertError) {
+    console.error('Error inserting verification token:', insertError);
+    throw new Error('No se pudo iniciar el proceso de verificación.');
+  }
+
+  const verifyUrl = `${origin}/api/auth/verify?token=${token}`;
+
+  // Log the verify URL and token hash on the server for debugging (do not expose in production logs)
+  console.info('Verification generated for', email, { verifyUrl, tokenHash });
+
+  try {
+    await sendVerificationEmail(email, fullName, verifyUrl);
+  } catch (err) {
+    console.error('Failed to send verification email:', err);
+    throw new Error('Error al enviar el correo de verificación.');
+  }
 
   return { success: true, message: 'Verification email sent' };
 }

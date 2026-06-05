@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import FormField from './FormField';
 import PasswordField from './PasswordField';
 import PrimaryAuthButton from './PrimaryAuthButton';
@@ -21,7 +22,7 @@ export default function RegisterForm({ role }: RegisterFormProps) {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,29 +37,14 @@ export default function RegisterForm({ role }: RegisterFormProps) {
     try {
       await registerAction(email, password, fullName, role, window.location.origin);
       setLoading(false);
-      setIsSuccess(true);
+      // Redirect to the verify page with the email in query for UX
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err: any) {
       setLoading(false);
       setErrorMsg(err.message || 'Hubo un error en el registro.');
     }
   };
 
-  if (isSuccess) {
-    return (
-      <div className="flex flex-col items-center justify-center space-y-4 rounded-xl border border-green-200 bg-green-50 p-8 text-center">
-        <svg className="h-16 w-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
-        </svg>
-        <h3 className="text-xl font-bold text-green-900">¡Revisa tu correo!</h3>
-        <p className="text-green-800">
-          Hemos enviado un enlace de confirmación a <strong>{email}</strong>. Haz clic en el enlace para activar tu cuenta.
-        </p>
-        <Link href={`/login?role=${role}`} className="mt-4 text-sm font-semibold text-green-700 underline hover:text-green-900">
-          Volver al inicio de sesión
-        </Link>
-      </div>
-    );
-  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">

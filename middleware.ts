@@ -67,6 +67,7 @@ export async function middleware(request: NextRequest) {
       pathname === '/' ||
       pathname.startsWith('/login') ||
       pathname.startsWith('/register') ||
+      pathname.startsWith('/verify-email') ||
       pathname.startsWith('/business') ||
       pathname.startsWith('/callback') ||
       pathname.startsWith('/join')
@@ -82,6 +83,7 @@ export async function middleware(request: NextRequest) {
       pathname === '/' ||
       pathname.startsWith('/login') ||
       pathname.startsWith('/register') ||
+      pathname.startsWith('/verify-email') ||
       pathname.startsWith('/business');
 
     if (isPublicRoute) {

@@ -26,7 +26,7 @@ export default function SystemSelectionCombobox({
   selectedIds,
   onToggle,
 }: SystemSelectionComboboxProps) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const [expandedInfoId, setExpandedInfoId] = useState<string | null>(null);
 
   return (
@@ -36,7 +36,7 @@ export default function SystemSelectionCombobox({
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="flex min-h-16 w-full items-center justify-between gap-4 rounded-2xl border border-[#dbe4ec] bg-[#f8fbfd] px-4 py-4 text-left transition hover:border-[#57b6d9]"
+        className="flex min-h-16 w-full cursor-pointer items-center justify-between gap-4 rounded-2xl border border-[#dbe4ec] bg-[#f8fbfd] px-4 py-4 text-left transition hover:border-[#57b6d9]"
       >
         <div className="scrollbar-none flex min-w-0 flex-1 items-center gap-2 overflow-x-auto whitespace-nowrap [&::-webkit-scrollbar]:hidden">
           {selectedIds.length ? (
@@ -67,21 +67,34 @@ export default function SystemSelectionCombobox({
             const expanded = expandedInfoId === option.id;
             const disabled = Boolean(option.comingSoon);
 
+            const handleSelect = () => {
+              if (!disabled) {
+                onToggle(option.id);
+              }
+            };
+
             return (
               <div
                 key={option.id}
-                className={`rounded-2xl border p-4 transition ${selected ? 'border-[#2A9D8F] bg-[#eef8f6]' : 'border-[#e7edf2] bg-[#fbfdfe]'} ${disabled ? 'opacity-60' : ''}`}
+                role="button"
+                tabIndex={disabled ? -1 : 0}
+                onClick={handleSelect}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    handleSelect();
+                  }
+                }}
+                aria-pressed={selected}
+                className={`rounded-2xl border p-4 transition ${selected ? 'border-[#2A9D8F] bg-[#eef8f6]' : 'border-[#e7edf2] bg-[#fbfdfe]'} ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:border-[#57b6d9]'}`}
               >
                 <div className="flex items-start gap-3">
-                  <button
-                    type="button"
-                    onClick={() => onToggle(option.id)}
-                    disabled={disabled}
-                    className={`mt-0.5 flex h-6 w-6 items-center justify-center rounded-full border transition ${selected ? 'border-[#2A9D8F] bg-[#2A9D8F] text-white' : 'border-[#cbd5e1] bg-white text-transparent'} ${disabled ? 'cursor-not-allowed' : ''}`}
-                    aria-label={selected ? `Quitar ${option.label}` : `Agregar ${option.label}`}
+                  <span
+                    aria-hidden="true"
+                    className={`mt-0.5 flex h-6 w-6 items-center justify-center rounded-full border transition ${selected ? 'border-[#2A9D8F] bg-[#2A9D8F] text-white' : 'border-[#cbd5e1] bg-white text-transparent'}`}
                   >
                     <Check size={14} />
-                  </button>
+                  </span>
 
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
@@ -97,7 +110,10 @@ export default function SystemSelectionCombobox({
 
                   <button
                     type="button"
-                    onClick={() => setExpandedInfoId((prev) => (prev === option.id ? null : option.id))}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setExpandedInfoId((prev) => (prev === option.id ? null : option.id));
+                    }}
                     className="inline-flex shrink-0 items-center justify-center h-6 w-6 rounded-full border border-[#dbe4ec] bg-white text-[#334155] transition hover:border-[#57b6d9] hover:text-[#0f172a]"
                   >
                     <Info size={14} />

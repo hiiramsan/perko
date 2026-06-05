@@ -1,7 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createSupabaseAdminClient, setSessionCookie, signSessionToken } from '@/lib/server/auth-route-utils';
-import bcrypt from 'bcrypt';
-import { jwtVerify } from 'jose';
 import crypto from 'crypto';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
@@ -58,37 +56,67 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    const { email, password, fullName, role } = payload as Record<string, string>;
-
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
     const supabaseAdmin = createSupabaseAdminClient();
 
-    const hashedPassword = await bcrypt.hash(password, 12);
+    // Find a matching, unused, unexpired verification token
+    const { data: tokenRow } = await supabaseAdmin
+      .from('email_verification_tokens')
+      .select('*')
+      .eq('token_hash', tokenHash)
+      .is('used_at', null)
+      .gt('expires_at', new Date().toISOString())
+      .maybeSingle();
 
+    if (!tokenRow) {
+      return NextResponse.redirect(`${origin}/login?error=invalid-or-expired-token`);
+    }
+
+    // Prevent creating duplicate profiles for the same email
+    const { data: existing } = await supabaseAdmin
+      .from('profiles')
+      .select('id, email, role, name')
+      .eq('email', tokenRow.email)
+      .maybeSingle();
+
+    if (existing) {
+      // mark token used to avoid reuse
+      await supabaseAdmin
+        .from('email_verification_tokens')
+        .update({ used_at: new Date().toISOString() })
+        .eq('id', tokenRow.id);
+
+      return NextResponse.redirect(`${origin}/login?error=already-registered`);
+    }
+
+    // Insert the new profile using the stored hashed password
     const { data: newProfile, error: dbError } = await supabaseAdmin
       .from('profiles')
       .insert([
-        { 
+        {
           id: crypto.randomUUID(),
-          email, 
-          name: fullName, 
-          role: role,
-          custom_password_hash: hashedPassword
-        }
+          email: tokenRow.email,
+          name: tokenRow.full_name,
+          role: tokenRow.role,
+          custom_password_hash: tokenRow.password_hash,
+        },
       ])
       .select()
       .single();
 
     if (dbError) {
-      if (dbError.code === '23505') {
-        return NextResponse.redirect(`${origin}/login?error=already-registered`);
-      }
-      console.error("Error inserting verified user", dbError);
+      console.error('Error inserting verified user', dbError);
       return NextResponse.redirect(`${origin}/login?error=db-error`);
     }
 
-    // ⚡ AFILIACIÓN TRADICIONAL: Si el usuario verificado es un cliente y viene de escanear el QR
-    if (role === 'customer' && joinBusinessSlug) {
+    // Mark token as used
+    await supabaseAdmin
+      .from('email_verification_tokens')
+      .update({ used_at: new Date().toISOString() })
+      .eq('id', tokenRow.id);
+
+    // If the user came from scanning a business QR, affiliate them
+    if (newProfile && newProfile.role === 'customer' && joinBusinessSlug) {
       await autoAffiliateCustomer(supabaseAdmin, newProfile.id, joinBusinessSlug);
     }
 
@@ -99,7 +127,7 @@ export async function GET(request: NextRequest) {
       name: newProfile.name,
     });
 
-    const targetUrl = role === 'admin' ? `${origin}/onboarding` : `${origin}/cartera`;
+    const targetUrl = newProfile.role === 'admin' ? `${origin}/onboarding` : `${origin}/cartera`;
     const response = NextResponse.redirect(targetUrl);
 
     setSessionCookie(response, customSessionToken);
@@ -109,9 +137,8 @@ export async function GET(request: NextRequest) {
     }
 
     return response;
-
   } catch (err) {
-    console.error("Token verification failed", err);
+    console.error('Token verification failed', err);
     return NextResponse.redirect(`${origin}/login?error=expired-token`);
   }
 }
