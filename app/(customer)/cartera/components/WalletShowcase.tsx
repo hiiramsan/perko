@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import StampCard from './StampCard';
+import { QRCodeSVG } from 'qrcode.react';
 
 export type WalletCard = {
   businessName: string;
@@ -13,6 +14,7 @@ export type WalletCard = {
   stampsFilled: number;
   rewardText: string;
   cardCode: string;
+  qrValue: string;
   programType?: 'rewards' | 'points';
   currentPoints?: number;
 };
@@ -202,13 +204,13 @@ export default function WalletShowcase({ walletCards }: WalletShowcaseProps) {
           </div>
 
           {/* QR code */}
-          <div className="mx-auto mt-6 w-64 sm:w-72">
-            <Image
-              src="/qrcode.svg"
-              alt="QR code"
-              width={288}
-              height={80}
-              className="w-full"
+          <div className="mx-auto mt-6 flex justify-center bg-white p-4 rounded-2xl shadow-inner border border-slate-100 w-64 sm:w-72">
+            <QRCodeSVG
+              value={sheetCard.qrValue}
+              size={200}
+              fgColor="#0f172a"
+              bgColor="#ffffff"
+              level="H"
             />
           </div>
 

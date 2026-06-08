@@ -31,22 +31,24 @@ No test framework is configured.
 - Signup role stored in client cookie `perko_signup_role` (max-age 600s).
 
 ## Route groups & directory layout
-- `(auth)` — login, register, business signup, callback
-- `(admin)` — dashboard, onboarding, settings
-- `(customer)` — cartera (wallet), profile
-- `(merchant)` — scan (QR scanner for staff)
-- `actions/` — Server Actions (e.g. `onboarding.ts`, `dashboard.ts`)
-- `app/api/` — REST API routes
-- `services/` — client-side service wrappers
-- `lib/` — third-party clients & utilities
-- `components/ui/` — shadcn/ui primitives
+- `(auth)` — login, register, verify-email, callback — `components/` (AuthDivider, AuthPageShell, FormField, GoogleAuthButton, PasswordField, PrimaryAuthButton, RegisterForm)
+- `(admin)` — `dashboard/` (AdminView, BaristaScannerView, KPIs, charts, QR modal), `onboarding/` (multi-phase wizard with `phases/`)
+- `(customer)` — `cartera/` (wallet with StampCard, WalletShowcase), `join/[slug]` (QR redirect handler), `profile/`
+- `actions/` (at `app/actions/`) — Server Actions: `auth.ts`, `business.ts`, `dashboard.ts`, `onboarding.ts`, `scan.ts`, `wallet.ts`
+- `app/api/auth/` — REST API routes (currently only `verify`)
+- `app/context/` — `AuthContext.tsx` (client-side auth)
+- `hooks/` — `useDashboardCardEditor.ts`, `useOnboarding.ts`
+- `lib/` — third-party clients & utilities (`supabase/`, `server/`, `email.ts`, `env.d.ts`, `utils.ts`)
+- `components/ui/` — shadcn/ui primitives (`button.tsx`, `highlighter.tsx`, `marquee.tsx`)
+- `components/landingPage/` — 9 landing page sections
+- `components/StampPreviewCard.tsx` — standalone shared component
 - Path alias: `@/*` maps to repo root
 
 ## Tailwind v4
 Uses `@import "tailwindcss"` (not `@tailwind` directives). CSS vars via `@theme inline {}`. Config in `postcss.config.mjs` with `@tailwindcss/postcss`.
 
 ## Supabase DB tables used
-`profiles`, `businesses`, `business_rewards_programs`, `business_points_programs`. All queries use service role key (`SUPABASE_SERVICE_ROLE_KEY` env var). No Row-Level Security (RLS) — auth is handled at the app layer.
+`profiles`, `businesses`, `business_rewards_programs`, `business_points_programs`, `loyalty_cards`, `customer_rewards_balances`, `customer_points_balances`. All queries use service role key (`SUPABASE_SERVICE_ROLE_KEY` env var). No Row-Level Security (RLS) — auth is handled at the app layer.
 
 ## Notable
 - No CI/CD, no pre-commit hooks, no formatter config.

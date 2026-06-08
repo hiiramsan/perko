@@ -1,199 +1,58 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { Moon, QrCode, Sun, UserCircle2, BadgeCheck, LogOut, Home, Users, Gift, BarChart2 } from 'lucide-react';
-import StampPreviewCard from '@/components/StampPreviewCard';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
-import { DashboardCardEditorModal } from './components/DashboardCardEditorModal';
-import { DashboardPerformancePanel } from './components/DashboardPerformancePanel';
-import { DashboardQrModal } from './components/DashboardQrModal';
-import { RecentScansTable } from './components/RecentScansTable';
-import { PeakHourCard } from './components/PeakHourCard';
-import { TopClientsCard } from './components/TopClientsCard';
-import { dashboardPerformanceMetricsHistorical, dashboardPerformanceMetricsToday, recentScanRows } from './dashboard-data';
-import { useDashboardCardEditor } from '@/hooks/useDashboardCardEditor';
+import { BaristaScannerView } from './components/BaristaScannerView';
+import { AdminView } from './components/AdminView';
+import { createClient } from '@/lib/supabase/client'; 
 
 export default function DashboardPage() {
-	const { logout } = useAuth();
-	const [isQrModalOpen, setIsQrModalOpen] = useState(false);
-	const [isCardModalOpen, setIsCardModalOpen] = useState(false);
-	const [isDarkMode, setIsDarkMode] = useState(false);
-	const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-	const profileMenuRef = useRef<HTMLDivElement>(null);
+  const { user, loading } = useAuth();
+  const [businessId, setBusinessId] = useState<number | null>(null);
+  const [loadingStaffInfo, setLoadingStaffInfo] = useState(false);
+  const [staffChecked, setStaffChecked] = useState(false);
 
-	const {
-		businessName,
-		slug,
-		logoPreview,
-		cardColor,
-		tempColor,
-		tempLogoPreview,
-		isSaving,
-		setTempColor,
-		handleLogoChange,
-		handleSaveCard,
-		resetCardDraft,
-	} = useDashboardCardEditor();
+  useEffect(() => {
+    if (user && user.role === 'staff') {
+      setLoadingStaffInfo(true);
+      const supabase = createClient();
 
-	useEffect(() => {
-		function handleClickOutside(event: MouseEvent) {
-			if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
-				setIsProfileMenuOpen(false);
-			}
-		}
+      supabase
+        .from('business_staff')
+        .select('business_id')
+        .eq('staff_id', user.id)
+        .maybeSingle()
+        .then(({ data, error }) => {
+          if (data && !error) {
+            setBusinessId(data.business_id);
+          }
+          setLoadingStaffInfo(false);
+          setStaffChecked(true);
+        });
+    } else if (user) {
+      setStaffChecked(true);
+    }
+  }, [user]);
 
-		document.addEventListener('mousedown', handleClickOutside);
-		return () => document.removeEventListener('mousedown', handleClickOutside);
-	}, []);
+  if (loading || loadingStaffInfo || !staffChecked) {
+    return <p className="p-6 text-xs font-bold uppercase tracking-widest text-slate-400">Cargando panel...</p>;
+  }
 
-	return (
-		<main className="relative flex h-screen w-full flex-col overflow-hidden bg-[#f7f8fa] px-4 py-3 md:px-8 md:py-4">
-			<div
-				className="absolute inset-0 z-0"
-				style={{
-					background: '#ffffff',
-					backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(0, 0, 0, 0.28) 1px, transparent 0)',
-					backgroundSize: '20px 20px',
-				}}
-			/>
+  if (!user) return <p className="p-6 text-sm text-red-500">No autorizado.</p>;
 
-			<div className="absolute inset-0 overflow-hidden">
-				<div className="absolute -left-1/4 -top-1/2 h-130 w-130 rounded-full bg-[#d8e6df] blur-[130px]" />
-				<div className="absolute -right-1/4 -bottom-1/2 h-110 w-110 rounded-full bg-[#e6ece9] blur-[120px]" />
-				<div className="absolute left-[16%] top-[18%] h-44 w-44 rounded-full bg-[#eef2f1] blur-[80px]" />
-			</div>
+  // Si es un empleado (staff)
+  if (user.role === 'staff') {
+    if (!businessId) {
+      return (
+        <div className="p-6 text-sm border-l-4 border-amber-500 bg-amber-50 text-amber-700 font-medium">
+          	Tu cuenta no tiene asignada ninguna sucursal activa. Pídele al administrador del negocio que te registre en el sistema.
+        </div>
+      );
+    }
+    // Le pasamos el businessId real recuperado de la tabla relacional
+    return <BaristaScannerView businessId={businessId} baristaName={user.name} />;
+  }
 
-			<header className="relative z-10 w-full py-1">
-				<div className="flex flex-wrap items-center justify-between gap-3">
-					<div className="flex items-center text-2xl font-bold tracking-tight text-[#0f172a]">
-						Perk<BadgeCheck size={28} strokeWidth={3} className="-ml-px" />
-					</div>
-
-					<nav className="flex items-center gap-2 rounded-full border border-black bg-white/60 px-2 py-1 shadow-sm backdrop-blur">
-						{[
-							{ name: 'Inicio', icon: Home },
-							{ name: 'Clientes', icon: Users },
-							{ name: 'Programa', icon: Gift },
-							{ name: 'Analíticas', icon: BarChart2 },
-						].map((tab, index) => {
-							const isActive = index === 0;
-
-							return (
-								<button
-									key={tab.name}
-									type="button"
-									className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:text-sm ${isActive ? 'bg-[#05668D] text-white shadow-sm' : 'text-[#475569] hover:bg-white hover:text-[#0f172a]'}`}
-								>
-									<tab.icon size={16} />
-									{tab.name}
-								</button>
-							);
-						})}
-					</nav>
-
-					<div className="flex items-center gap-2">
-						<button
-							type="button"
-							onClick={() => setIsDarkMode((current) => !current)}
-							className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#dbe4ec] bg-white/60 text-[#334155] shadow-sm backdrop-blur transition hover:border-[#94a3b8] hover:bg-white"
-							aria-label="Cambiar modo"
-						>
-							{isDarkMode ? <Moon size={18} /> : <Sun size={18} />}
-						</button>
-
-						<div className="relative" ref={profileMenuRef}>
-							<button
-								type="button"
-								onClick={() => setIsProfileMenuOpen((prev) => !prev)}
-								className="inline-flex items-center gap-2 rounded-full border border-[#dbe4ec] bg-white/60 px-3 py-2 text-sm font-semibold text-[#0f172a] shadow-sm backdrop-blur transition hover:border-[#94a3b8] hover:bg-white"
-							>
-								<UserCircle2 size={18} className="text-[#05668D]" />
-								Perfil
-							</button>
-
-							{isProfileMenuOpen && (
-								<div className="absolute right-0 top-full mt-2 w-48 overflow-hidden rounded-xl border border-[#dbe4ec] bg-white py-1 shadow-lg shadow-black/5">
-									<button
-										type="button"
-										onClick={() => {
-											setIsProfileMenuOpen(false);
-											logout();
-										}}
-										className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-red-600 transition hover:bg-red-50"
-									>
-										<LogOut size={16} />
-										Cerrar sesión
-									</button>
-								</div>
-							)}
-						</div>
-					</div>
-				</div>
-			</header>
-
-			<div className="relative z-10 mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col mt-4 pb-4">
-				<section className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-stretch">
-					<div className="grid min-h-0 gap-6 lg:grid-rows-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
-						<article className="flex flex-col overflow-hidden rounded-none border border-black bg-white">
-							<div className="px-5 pt-4 sm:px-6">
-								<div className="flex items-center gap-2">
-									<span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Mi tarjeta</span>
-								</div>
-							</div>
-
-							<div className="flex min-h-0 flex-1 items-center justify-center gap-10 px-5 pb-5 sm:px-6">
-								<div className="max-w-84 sm:max-w-88">
-									<StampPreviewCard businessName={businessName} logoPreview={logoPreview} cardColor={cardColor} compact />
-								</div>
-
-								<div className="flex shrink-0 flex-col gap-3">
-									<button type="button" onClick={() => setIsQrModalOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#05668D] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#045676]">
-										<QrCode size={16} />
-										Mostrar QR
-									</button>
-									<button type="button" onClick={() => setIsCardModalOpen(true)} className="inline-flex items-center justify-center rounded-full border border-[#dbe4ec] bg-white px-4 py-3 text-sm font-semibold text-[#0f172a] transition hover:border-[#94a3b8] hover:bg-[#f8fbfd]">
-										Editar tarjeta
-									</button>
-								</div>
-							</div>
-						</article>
-
-						<DashboardPerformancePanel todayMetrics={dashboardPerformanceMetricsToday} historicalMetrics={dashboardPerformanceMetricsHistorical} />
-					</div>
-
-					<div className="grid min-h-0 flex-1 grid-rows-2 gap-6">
-						<div className="min-h-0">
-							<RecentScansTable items={recentScanRows} />
-						</div>
-						<div className="min-h-0 grid grid-cols-1 gap-6 sm:grid-cols-2">
-							<PeakHourCard />
-							<TopClientsCard />
-						</div>
-					</div>
-				</section>
-			</div>
-
-			<DashboardCardEditorModal
-				open={isCardModalOpen}
-				onClose={() => {
-					setIsCardModalOpen(false);
-					resetCardDraft();
-				}}
-				businessName={businessName}
-				tempColor={tempColor}
-				tempLogoPreview={tempLogoPreview}
-				isSaving={isSaving}
-				onColorChange={setTempColor}
-				onLogoChange={handleLogoChange}
-				onSave={handleSaveCard}
-			/>
-
-			<DashboardQrModal 
-				open={isQrModalOpen} 
-				onClose={() => setIsQrModalOpen(false)} 
-				slug={slug} 
-				logoUrl={logoPreview} 
-			/>
-		</main>
-	);
+  // Si es el dueño (admin), ve el panel completo
+  return <AdminView />;
 }

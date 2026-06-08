@@ -12,6 +12,7 @@ export type WalletCardData = {
   cardColor: string;
   rewardText: string;
   cardCode: string;
+  qrValue: string;
   programType: 'rewards' | 'points';
   stampsFilled: number;
   maxStamps: number;
@@ -50,7 +51,7 @@ export async function getCustomerWalletAction() {
 
       if (!business) continue;
 
-      // 3. Consultar qué programa está activo優先 para saber el tipo (Timbres vs Puntos)
+      // 3. Consultar qué programa está activo para saber el tipo (Timbres vs Puntos)
       const { data: rewardsProg } = await supabaseAdmin
         .from('business_rewards_programs')
         .select('reward_product, reward_visits')
@@ -107,6 +108,7 @@ export async function getCustomerWalletAction() {
         cardColor: business.color || '#2A9D8F',
         rewardText,
         cardCode,
+        qrValue: String(card.id),
         programType,
         stampsFilled,
         maxStamps,

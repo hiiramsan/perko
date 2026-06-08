@@ -11,8 +11,11 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 // 🆕 Lean fetch — no SDK, just a single REST call. Middleware runs on the
 //    edge runtime where heavy imports are expensive. This stays fast.
 async function getOnboardingStatus(
-  userId: string
+  userId: string,
+  role: string
 ): Promise<{ status: string; step: number } | null> {
+  if (role === 'staff') return null;
+
   try {
     const res = await fetch(
       `${SUPABASE_URL}/rest/v1/businesses?owner_id=eq.${userId}&select=onboarding_status,onboarding_step&limit=1`,
@@ -92,7 +95,7 @@ export async function middleware(request: NextRequest) {
       }
 
       if (userPayload.role === 'admin' || userPayload.role === 'staff') {
-        const onboarding = await getOnboardingStatus(userPayload.id);
+        const onboarding = await getOnboardingStatus(userPayload.id, userPayload.role);
 
         if (onboarding?.status === 'completed') {
           return NextResponse.redirect(new URL('/dashboard', request.url));
@@ -111,7 +114,7 @@ export async function middleware(request: NextRequest) {
       // Only run the DB check when the user is heading somewhere that requires
       // onboarding to be resolved. Skips the fetch for unrelated routes.
       if (isOnboardingRoute || isDashboardRoute || isScanRoute) {
-        const onboarding = await getOnboardingStatus(userPayload.id);
+        const onboarding = await getOnboardingStatus(userPayload.id, userPayload.role);
 
         if (onboarding) {
           const { status } = onboarding;

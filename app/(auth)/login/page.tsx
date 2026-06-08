@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useAuth } from '@/app/context/AuthContext';
 import FormField from '../components/FormField';
 import PasswordField from '../components/PasswordField';
 import PrimaryAuthButton from '../components/PrimaryAuthButton';
@@ -11,6 +12,7 @@ import { loginAction } from '@/app/actions/auth';
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { refreshSession } = useAuth();
   
   const urlRole = searchParams.get('role') === 'admin' ? 'admin' : 'customer';
 
@@ -37,6 +39,8 @@ function LoginForm() {
     try {
       const result = await loginAction(email, password, rememberMe);
       setLoading(false);
+
+      refreshSession().catch(() => {});
 
       if (result.role === 'customer') {
         router.push('/cartera');
