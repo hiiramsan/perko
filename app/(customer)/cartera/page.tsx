@@ -27,7 +27,7 @@ export default function CardsPage() {
     }
   }, [user, fetchWalletData]);
 
-  // 2. Suscripción en Tiempo Real vía WebSockets
+  // 2. Suscripción en Tiempo Real vía WebSockets + polling de respaldo
   useEffect(() => {
     if (!user) return;
 
@@ -52,8 +52,14 @@ export default function CardsPage() {
       )
       .subscribe();
 
+    // Polling de respaldo cada 7s por si Realtime no captura cambios hechos con service role key
+    const pollTimer = setInterval(() => {
+      fetchWalletData();
+    }, 3000);
+
     return () => {
       supabase.removeChannel(realtimeChannel);
+      clearInterval(pollTimer);
     };
   }, [user, fetchWalletData]);
 

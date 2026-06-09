@@ -29,6 +29,10 @@ function LoginForm() {
     if (errorParam === 'expired-token') setErrorMsg('Tu enlace de validación expiró. Regístrate otra vez.');
     if (errorParam === 'already-registered') setErrorMsg('El correo ya fue registrado, por favor inicia sesión.');
     if (errorParam === 'session-expired') setErrorMsg('Tu sesión ha expirado, inicia sesión de nuevo.');
+    if (errorParam === 'auth-failed') setErrorMsg('Error al autenticar con Google. Intenta de nuevo o usa correo y contraseña.');
+    if (errorParam === 'no-code') setErrorMsg('No se recibió el código de autenticación. Intenta de nuevo.');
+    if (errorParam === 'db-error') setErrorMsg('Error interno del servidor. Intenta más tarde.');
+    if (errorParam === 'unknown') setErrorMsg('Ocurrió un error inesperado. Intenta de nuevo.');
   }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,7 +44,7 @@ function LoginForm() {
       const result = await loginAction(email, password, rememberMe);
       setLoading(false);
 
-      refreshSession().catch(() => {});
+      await refreshSession();
 
       if (result.role === 'customer') {
         router.push('/cartera');

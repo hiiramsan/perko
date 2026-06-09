@@ -8,6 +8,7 @@ type UserSession = {
   email: string;
   role: 'customer' | 'admin' | 'staff';
   name: string;
+  businessId?: number | null;
 } | null;
 
 type AuthContextType = {
@@ -24,6 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchSession = async () => {
+    setLoading(true);
     try {
       const payload = await getSessionAction();
       setUser(payload as UserSession);

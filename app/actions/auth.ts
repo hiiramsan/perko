@@ -63,11 +63,22 @@ export async function loginAction(email: string, password: string, rememberMe: b
     throw new Error('Credenciales invalidas.');
   }
 
+  let businessId: number | null = null;
+  if (profile.role === 'staff') {
+    const { data: staffData } = await supabaseAdmin
+      .from('business_staff')
+      .select('business_id')
+      .eq('staff_id', profile.id)
+      .maybeSingle();
+    businessId = staffData?.business_id ?? null;
+  }
+
   const token = await new SignJWT({
     id: profile.id,
     email: profile.email,
     role: profile.role,
     name: profile.name,
+    businessId,
   })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()

@@ -24,6 +24,10 @@ export default function GoogleAuthButton({ intent, role }: GoogleAuthButtonProps
       provider: 'google',
       options: {
         redirectTo: redirectUrl.toString(),
+        queryParams: {
+          prompt: 'consent',
+          access_type: 'offline',
+        },
       },
     });
 

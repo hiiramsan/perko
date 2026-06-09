@@ -33,6 +33,7 @@ export default function WalletShowcase({ walletCards }: WalletShowcaseProps) {
   const [sheetCardIdx, setSheetCardIdx] = useState<number | null>(null);
   const [sheetVisible, setSheetVisible] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevCardsRef = useRef(walletCards);
 
   const n = walletCards.length;
 
@@ -62,6 +63,21 @@ export default function WalletShowcase({ walletCards }: WalletShowcaseProps) {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [sheetCardIdx, closeSheet]);
+
+  useEffect(() => {
+    if (sheetCardIdx !== null && walletCards !== prevCardsRef.current) {
+      const prev = prevCardsRef.current[sheetCardIdx];
+      const curr = walletCards[sheetCardIdx];
+      if (
+        prev && curr &&
+        (prev.stampsFilled !== curr.stampsFilled ||
+         prev.currentPoints !== curr.currentPoints)
+      ) {
+        closeSheet();
+      }
+    }
+    prevCardsRef.current = walletCards;
+  }, [walletCards, sheetCardIdx, closeSheet]);
 
   const stackHeight = (n - 1) * PEEK_HEIGHT + CARD_HEIGHT;
   const sheetCard = sheetCardIdx !== null ? walletCards[sheetCardIdx] : null;

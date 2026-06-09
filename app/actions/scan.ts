@@ -36,7 +36,17 @@ export async function processCustomerScanAction(
       return { success: false, error: 'El código QR escaneado no es válido.' };
     }
 
-    // 2. Verificar que la tarjeta exista y esté activa
+    // 2. Verificar que el barista pertenezca al mismo negocio que la tarjeta escaneada
+    const { data: staffRow } = await supabaseAdmin
+      .from('business_staff')
+      .select('business_id')
+      .eq('staff_id', baristaId)
+      .maybeSingle();
+
+    if (!staffRow?.business_id) {
+      return { success: false, error: 'Tu cuenta no está vinculada a ningún negocio.' };
+    }
+
     const { data: card, error: cardError } = await supabaseAdmin
       .from('loyalty_cards')
       .select('id, customer_id, business_id, status')
@@ -49,6 +59,10 @@ export async function processCustomerScanAction(
 
     if (card.status !== 'active') {
       return { success: false, error: 'Esta membresía se encuentra suspendida.' };
+    }
+
+    if (card.business_id !== staffRow.business_id) {
+      return { success: false, error: 'Esta tarjeta no pertenece a tu empresa. Solo puedes escanear tarjetas de tu propio negocio.' };
     }
 
     // 3. Obtener el nombre del cliente para el feed del barista

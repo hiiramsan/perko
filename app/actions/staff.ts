@@ -11,6 +11,18 @@ type CreateStaffResult = {
   error?: string;
 };
 
+export async function getStaffBusinessAction(staffId: string): Promise<number | null> {
+  const supabaseAdmin = createSupabaseAdminClient();
+
+  const { data } = await supabaseAdmin
+    .from('business_staff')
+    .select('business_id')
+    .eq('staff_id', staffId)
+    .maybeSingle();
+
+  return data?.business_id ?? null;
+}
+
 export async function createStaffAction(formData: {
   name: string;
   email: string;

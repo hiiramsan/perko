@@ -6,7 +6,7 @@ const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 const sessionCookieOptions = {
   httpOnly: true,
-  secure: true,
+  secure: process.env.NODE_ENV === 'production',
   sameSite: 'lax' as const,
   path: '/',
 };

@@ -1,5 +1,6 @@
 'use client';
 
+import { useLayoutEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { ArrowUpRight, BadgeCheck } from 'lucide-react';
 
@@ -95,6 +96,23 @@ export default function StampCard({
   const palette = getCardPalette(cardColor);
   const stamps = Array.from({ length: TOTAL_STAMPS }, (_, i) => i);
 
+  const prevFilledRef = useRef(stampsFilled);
+  const [animating, setAnimating] = useState<Set<number>>(new Set());
+
+  useLayoutEffect(() => {
+    if (stampsFilled > prevFilledRef.current) {
+      const newIndices = new Set<number>();
+      for (let i = prevFilledRef.current; i < stampsFilled; i++) {
+        newIndices.add(i);
+      }
+      setAnimating(newIndices);
+      const timer = setTimeout(() => setAnimating(new Set()), 800);
+      prevFilledRef.current = stampsFilled;
+      return () => clearTimeout(timer);
+    }
+    prevFilledRef.current = stampsFilled;
+  }, [stampsFilled]);
+
   return (
     <article
       className="overflow-hidden rounded-[1.75rem] px-4 pb-4 pt-4 shadow-[0_22px_45px_-28px_rgba(15,23,42,0.55)] ring-1 ring-white/20 sm:px-5 sm:pb-5 sm:pt-5"
@@ -137,9 +155,10 @@ export default function StampCard({
             return (
               <div
                 key={`${businessName}-stamp-${i}`}
-                className="flex h-9 w-9 items-center justify-center rounded-full sm:h-10 sm:w-10"
+                className={`flex h-9 w-9 items-center justify-center rounded-full sm:h-10 sm:w-10 ${animating.has(i) ? 'animate-stamp-pop' : ''}`}
                 style={{
                   backgroundColor: filled ? palette.stampFilledColor : palette.stampEmptyColor,
+                  animationDelay: animating.has(i) ? `${(i - (stampsFilled - animating.size)) * 90}ms` : '0ms',
                 }}
               >
                 {filled ? (
