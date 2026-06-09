@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { ArrowLeft, BadgeCheck } from 'lucide-react';
 import OnboardingStyles from './components/OnboardingStyles';
 import StampPreviewCard from '@/components/StampPreviewCard';
@@ -23,7 +24,7 @@ interface OnboardingPageProps {
   initialStep?: number;
 }
 
-export default function OnboardingPage({ initialStep = 1 }: OnboardingPageProps) {
+function OnboardingPageContent({ initialStep = 1 }: OnboardingPageProps) {
 	const searchParams = useSearchParams();
 	const stepParam = searchParams.get('step');
 	const parsedStep = stepParam ? Number(stepParam) : Number.NaN;
@@ -183,5 +184,13 @@ export default function OnboardingPage({ initialStep = 1 }: OnboardingPageProps)
 				</div>
 			</section>
 		</main>
+	);
+}
+
+export default function OnboardingPage(props: OnboardingPageProps) {
+	return (
+		<Suspense fallback={<div className="flex min-h-screen items-center justify-center text-[#4f6b83]">Cargando...</div>}>
+			<OnboardingPageContent {...props} />
+		</Suspense>
 	);
 }
