@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { Html5Qrcode } from 'html5-qrcode';
+import type { Html5Qrcode as Html5QrcodeType } from 'html5-qrcode';
 import { processCustomerScanAction } from '@/app/actions/scan';
 
 export type ScanResultData = {
@@ -10,6 +10,16 @@ export type ScanResultData = {
   error?: string;
 };
 
+let Html5QrcodeClass: typeof Html5QrcodeType | null = null;
+
+async function getHtml5Qrcode(): Promise<typeof Html5QrcodeType> {
+  if (!Html5QrcodeClass) {
+    const mod = await import('html5-qrcode');
+    Html5QrcodeClass = mod.Html5Qrcode;
+  }
+  return Html5QrcodeClass!;
+}
+
 export function useBaristaScanner() {
   const [amount, setAmount] = useState<string>('1');
   const [description, setDescription] = useState<string>('');
@@ -18,7 +28,7 @@ export function useBaristaScanner() {
   const [scanResult, setScanResult] = useState<ScanResultData | null>(null);
 
   const qrRegionId = 'html5-qrcode-viewfinder';
-  const html5QrcodeRef = useRef<Html5Qrcode | null>(null);
+  const html5QrcodeRef = useRef<Html5QrcodeType | null>(null);
 
   const stopScanner = useCallback(async () => {
     if (html5QrcodeRef.current && html5QrcodeRef.current.isScanning) {
@@ -61,6 +71,7 @@ export function useBaristaScanner() {
     try {
       setScanResult(null);
       if (!html5QrcodeRef.current) {
+        const Html5Qrcode = await getHtml5Qrcode();
         html5QrcodeRef.current = new Html5Qrcode(qrRegionId);
       }
 
