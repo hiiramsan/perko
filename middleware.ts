@@ -4,12 +4,9 @@ import { jwtVerify } from 'jose';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
-// 🆕 Supabase URL + service key for the lightweight status check
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
-// 🆕 Lean fetch — no SDK, just a single REST call. Middleware runs on the
-//    edge runtime where heavy imports are expensive. This stays fast.
 async function getOnboardingStatus(
   userId: string,
   role: string
@@ -40,7 +37,7 @@ async function getOnboardingStatus(
       step: rows[0].onboarding_step ?? 1,
     };
   } catch {
-    return null; // fail open — let the page-level auth handle edge cases
+    return null;
   }
 }
 
@@ -65,6 +62,12 @@ export async function middleware(request: NextRequest) {
 
   // --- TRAFFIC CONTROL LOGIC ---
 
+  // /join always passes through regardless of auth state —
+  // the page itself handles routing based on session
+  if (pathname.startsWith('/join')) {
+    return NextResponse.next();
+  }
+
   if (!userPayload) {
     if (
       pathname === '/' ||
@@ -72,8 +75,7 @@ export async function middleware(request: NextRequest) {
       pathname.startsWith('/register') ||
       pathname.startsWith('/verify-email') ||
       pathname.startsWith('/business') ||
-      pathname.startsWith('/callback') ||
-      pathname.startsWith('/join')
+      pathname.startsWith('/callback')
     ) {
       return NextResponse.next();
     }
@@ -82,14 +84,16 @@ export async function middleware(request: NextRequest) {
   }
 
   if (userPayload) {
-    const isPublicRoute =
+    // Auth pages — redirect away if already logged in
+    const isAuthPageRoute =
       pathname === '/' ||
       pathname.startsWith('/login') ||
       pathname.startsWith('/register') ||
       pathname.startsWith('/verify-email') ||
-      pathname.startsWith('/business');
+      pathname.startsWith('/business') ||
+      pathname.startsWith('/callback');
 
-    if (isPublicRoute) {
+    if (isAuthPageRoute) {
       if (userPayload.role === 'customer') {
         return NextResponse.redirect(new URL('/cartera', request.url));
       }
@@ -105,30 +109,25 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    // 🆕 Onboarding gate — only applies to business roles
+    // Onboarding gate — only applies to business roles
     if (userPayload.role === 'admin' || userPayload.role === 'staff') {
       const isOnboardingRoute = pathname.startsWith('/onboarding');
       const isDashboardRoute  = pathname.startsWith('/dashboard');
       const isScanRoute       = pathname.startsWith('/scan');
 
-      // Only run the DB check when the user is heading somewhere that requires
-      // onboarding to be resolved. Skips the fetch for unrelated routes.
       if (isOnboardingRoute || isDashboardRoute || isScanRoute) {
         const onboarding = await getOnboardingStatus(userPayload.id, userPayload.role);
 
         if (onboarding) {
           const { status } = onboarding;
 
-          // Not done yet → keep them in onboarding
           if (status !== 'completed') {
             if (!isOnboardingRoute) {
               return NextResponse.redirect(new URL('/onboarding', request.url));
             }
-            // Already on an onboarding route → let them through
             return NextResponse.next();
           }
 
-          // Onboarding done → block re-entry into onboarding pages
           if (status === 'completed' && isOnboardingRoute) {
             return NextResponse.redirect(new URL('/dashboard', request.url));
           }

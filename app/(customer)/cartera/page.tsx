@@ -63,7 +63,7 @@ export default function CardsPage() {
     };
   }, [user, fetchWalletData]);
 
-  if (loading || fetchingWallet) return <p>Cargando sesión...</p>;
+  if (loading || fetchingWallet) return <p>Cargando sesión...</p>; // change this later -chsm
   if (!user) return <p>No has iniciado sesión.</p>;
 
   return (

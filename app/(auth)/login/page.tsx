@@ -15,6 +15,7 @@ function LoginForm() {
   const { refreshSession } = useAuth();
   
   const urlRole = searchParams.get('role') === 'admin' ? 'admin' : 'customer';
+  const joinSlug = searchParams.get('join');
 
   const [rememberMe, setRememberMe] = useState(false);
   const [email, setEmail] = useState('');
@@ -46,7 +47,9 @@ function LoginForm() {
 
       await refreshSession();
 
-      if (result.role === 'customer') {
+      if (result.role === 'customer' && joinSlug) {
+        router.push(`/join/${joinSlug}`);
+      } else if (result.role === 'customer') {
         router.push('/cartera');
       } else {
         router.push('/dashboard');
@@ -62,7 +65,7 @@ function LoginForm() {
       title="INICIA SESIÓN"
       subtitle={urlRole === 'admin' ? 'PANEL DE NEGOCIOS' : 'CLUB DE RECOMPENSAS'}
       footerText="¿No tienes cuenta?"
-      footerHref={urlRole === 'admin' ? '/register?role=admin' : '/register?role=customer'}
+      footerHref={urlRole === 'admin' ? '/register?role=admin' : `/register?role=customer${joinSlug ? `&join=${joinSlug}` : ''}`}
       footerLinkLabel="CREAR UNA"
       googleIntent="login"
     >

@@ -1,46 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createSupabaseAdminClient, setSessionCookie, signSessionToken } from '@/lib/server/auth-route-utils';
+import { autoAffiliateCustomer } from '@/lib/server/affiliate';
 
-// Afiliación automática al negocio del QR e inicialización de sistemas de fidelización asociados
-async function autoAffiliateCustomer(supabaseAdmin: any, customerId: string, businessSlug: string) {
-  if (!businessSlug) return;
-  try {
-    // 1. Buscamos el ID real del negocio por medio de su slug único
-    const { data: business } = await supabaseAdmin
-      .from('businesses')
-      .select('id')
-      .eq('slug', businessSlug)
-      .maybeSingle();
-
-    if (!business) return;
-
-    // 2. Insertamos la membresía central en loyalty_cards
-    const { data: card, error: cardError } = await supabaseAdmin
-      .from('loyalty_cards')
-      .insert([{
-        customer_id: customerId,
-        business_id: business.id,
-        status: 'active'
-      }])
-      .select('id')
-      .maybeSingle();
-
-    if (cardError || !card) return;
-
-    // 3. Inicializamos los balances de las tablas satélites en 0 de forma limpia
-    await supabaseAdmin
-      .from('customer_rewards_balances')
-      .insert([{ loyalty_card_id: card.id, current_stamps: 0, total_accumulated_stamps: 0 }]);
-
-    await supabaseAdmin
-      .from('customer_points_balances')
-      .insert([{ loyalty_card_id: card.id, current_points: 0.00, total_earned_points: 0.00 }]);
-
-  } catch (err) {
-    console.error('Error crítico en autoAffiliateCustomer (Google):', err);
-  }
-}
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
