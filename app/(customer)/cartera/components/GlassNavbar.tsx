@@ -8,7 +8,14 @@ const tabs = [
   { id: "profile", label: "Profile", icon: User },
 ];
 
-export default function GlassNavbar({ activeTab, onTabChange }) {
+export type TabId = typeof tabs[number]["id"];
+
+interface GlassNavbarProps {
+  activeTab: TabId;
+  onTabChange?: (tab: TabId) => void;
+}
+
+export default function GlassNavbar({ activeTab, onTabChange }: GlassNavbarProps) {
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">

@@ -115,73 +115,71 @@ export default function StampCard({
 
   return (
     <article
-      className="overflow-hidden rounded-[1.75rem] px-4 pb-4 pt-4 shadow-[0_22px_45px_-28px_rgba(15,23,42,0.55)] ring-1 ring-white/20 sm:px-5 sm:pb-5 sm:pt-5"
+      className="overflow-hidden rounded-[2rem] px-5 pb-5 pt-5 shadow-[0_22px_50px_-20px_rgba(15,23,42,0.6)] ring-1 ring-white/20 sm:px-6 sm:pb-6 sm:pt-5"
       style={{ backgroundColor: cardColor }}
     >
-      <div className="flex items-start gap-3 mb-4">
-        <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border border-white/20 bg-white/15 shadow-[0_8px_20px_-16px_rgba(15,23,42,0.8)] sm:h-13 sm:w-13">
+      <div className="flex items-start gap-3.5 mb-5 sm:gap-4 sm:mb-6">
+        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-white/20 bg-white/15 shadow-[0_8px_24px_-16px_rgba(15,23,42,0.8)] sm:h-14 sm:w-14">
           <Image
             src={logoSrc}
             alt={`${businessName} logo`}
             fill
             className="object-cover"
-            sizes="52px"
+            sizes="56px"
           />
         </div>
 
         <div className="min-w-0 flex-1">
           <h2
-            className="truncate text-[1.04rem] font-semibold leading-tight sm:text-[1.08rem]"
+            className="font-sans truncate text-[1.12rem] font-semibold tracking-[-0.025em] leading-tight sm:text-[1.22rem]"
             style={{ color: palette.titleColor }}
           >
             {businessName}
           </h2>
           <a
             href={href}
-            className="mt-0.5 inline-flex items-center gap-1 text-[0.8rem] font-medium transition-opacity hover:opacity-80"
+            className="mt-1 inline-flex items-center gap-1 text-[0.82rem] font-[475] tracking-[-0.01em] transition-opacity hover:opacity-80"
             style={{ color: palette.linkColor }}
           >
             <span className="truncate">{linkLabel}</span>
-            <ArrowUpRight size={14} strokeWidth={2.2} />
+            <ArrowUpRight size={14} strokeWidth={2.4} />
           </a>
         </div>
       </div>
 
-      {/* Bloque Central Adaptable (Conserva dimensiones idénticas del diseño anterior) */}
       {programType === 'rewards' ? (
-        <div className="grid grid-cols-5 gap-2 sm:gap-2.5">
+        <div className="grid grid-cols-5 gap-2.5 sm:gap-3.5">
           {stamps.map((i) => {
             const filled = i < stampsFilled;
             return (
               <div
                 key={`${businessName}-stamp-${i}`}
-                className={`flex h-9 w-9 items-center justify-center rounded-full sm:h-10 sm:w-10 ${animating.has(i) ? 'animate-stamp-pop' : ''}`}
+                className={`flex h-10 w-10 items-center justify-center rounded-full sm:h-12 sm:w-12 ${animating.has(i) ? 'animate-stamp-pop' : ''}`}
                 style={{
                   backgroundColor: filled ? palette.stampFilledColor : palette.stampEmptyColor,
                   animationDelay: animating.has(i) ? `${(i - (stampsFilled - animating.size)) * 90}ms` : '0ms',
                 }}
               >
                 {filled ? (
-                  <BadgeCheck size={22} color={palette.stampIconColor} strokeWidth={2} />
+                  <BadgeCheck size={24} color={palette.stampIconColor} strokeWidth={2} />
                 ) : null}
               </div>
             );
           })}
         </div>
       ) : (
-        /* Renderizado Simétrico para Monedero de Puntos */
-        <div className="flex h-9 sm:h-10 items-center justify-between px-4 rounded-xl bg-black/15">
-          <span className="text-[0.75rem] font-bold uppercase tracking-wider opacity-75" style={{ color: palette.titleColor }}>
+        <div className="flex h-11 sm:h-12 items-center justify-between px-4 rounded-xl bg-black/15">
+          <span className="font-sans text-[0.78rem] font-bold uppercase tracking-wider opacity-75" style={{ color: palette.titleColor }}>
             Saldo Monedero:
           </span>
-          <span className="text-lg font-black tracking-tight" style={{ color: palette.titleColor }}>
+          <span className="font-sans text-xl font-black tracking-[-0.03em]" style={{ color: palette.titleColor }}>
             {currentPoints.toFixed(2)} Pts
           </span>
         </div>
       )}
 
-      <div className="mt-3 flex items-center justify-center sm:mt-4">
-        <p className="text-[0.78rem] font-medium" style={{ color: palette.rewardColor }}>
+      <div className="mt-4 flex items-center justify-center sm:mt-5">
+        <p className="font-sans text-[0.82rem] font-[500] tracking-[-0.01em] sm:text-[0.85rem]" style={{ color: palette.rewardColor }}>
           {rewardText}
         </p>
       </div>

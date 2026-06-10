@@ -3,14 +3,14 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
 import WalletShowcase, { type WalletCard } from './components/WalletShowcase';
-import GlassNavbar from './components/GlassNavbar';
+import GlassNavbar, { TabId } from './components/GlassNavbar';
 import { getCustomerWalletAction } from '@/app/actions/wallet';
 
 export default function CardsPage() {
   const { user, loading, logout } = useAuth();
   const [walletCards, setWalletCards] = useState<WalletCard[]>([]);
   const [fetchingWallet, setFetchingWallet] = useState(true);
-  const [activeTab, setActiveTab] = useState('wallet');
+  const [activeTab, setActiveTab] = useState<TabId>('wallet');
 
   const fetchWalletData = useCallback(async () => {
     const res = await getCustomerWalletAction();
@@ -39,12 +39,16 @@ export default function CardsPage() {
 
   return (
     <>
-      <main className="min-h-screen overflow-hidden px-6 py-12 text-slate-950 sm:px-8 pb-28">
+      <main className="min-h-screen overflow-hidden px-5 py-14 text-slate-950 sm:px-6 pb-28">
         {activeTab === 'wallet' && (
           <>
-            <div className="px-2 mt-2">
-              <h1 className="text-2xl font-bold">Cartera</h1>
-              <p className="mt-0.5 text-sm text-slate-500">Presiona una tarjeta para mostrar QR</p>
+            <div className="px-1">
+              <h1 className="font-sans text-[2.25rem] font-bold tracking-[-0.035em] leading-[1.05] text-slate-900 sm:text-[2.75rem]">
+                Cartera
+              </h1>
+              <p className="mt-1.5 text-[0.92rem] font-[350] text-slate-400 tracking-[-0.01em]">
+                Presiona una tarjeta para mostrar QR
+              </p>
             </div>
 
             {walletCards.length === 0 ? (
@@ -56,9 +60,11 @@ export default function CardsPage() {
         )}
 
         {activeTab === 'join' && (
-          <div className="px-2 mt-2">
-            <h1 className="text-2xl font-bold">Unirse a un negocio</h1>
-            <p className="mt-0.5 text-sm text-slate-500">Escanea el código QR de un negocio para unirte</p>
+          <div className="px-1 mt-2">
+            <h1 className="font-sans text-[2.25rem] font-bold tracking-[-0.035em] leading-[1.05] text-slate-900 sm:text-[2.75rem]">
+              Unirse
+            </h1>
+            <p className="mt-1.5 text-[0.92rem] font-[350] text-slate-400 tracking-[-0.01em]">Escanea el código QR de un negocio para unirte</p>
 
             <div className="mt-8 flex flex-col items-center gap-4">
               <p className="text-sm text-slate-400 text-center max-w-xs">
@@ -69,8 +75,10 @@ export default function CardsPage() {
         )}
 
         {activeTab === 'profile' && (
-          <div className="px-2 mt-2">
-            <h1 className="text-2xl font-bold">Mi Perfil</h1>
+          <div className="px-1 mt-2">
+            <h1 className="font-sans text-[2.25rem] font-bold tracking-[-0.035em] leading-[1.05] text-slate-900 sm:text-[2.75rem]">
+              Mi Perfil
+            </h1>
             <div className="mt-6 space-y-4">
               <div>
                 <p className="text-sm text-slate-500">Nombre</p>

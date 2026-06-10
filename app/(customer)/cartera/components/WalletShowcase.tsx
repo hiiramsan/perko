@@ -23,8 +23,8 @@ type WalletShowcaseProps = {
   walletCards: WalletCard[];
 };
 
-const CARD_HEIGHT = 196;
-const PEEK_HEIGHT = 68;
+const CARD_HEIGHT = 264;
+const PEEK_HEIGHT = 72;
 
 export default function WalletShowcase({ walletCards }: WalletShowcaseProps) {
   const [order, setOrder] = useState<number[]>(() =>
@@ -85,7 +85,7 @@ export default function WalletShowcase({ walletCards }: WalletShowcaseProps) {
   return (
     <>
       <div className="mt-8 flex justify-center md:hidden">
-        <div className="relative w-72 sm:w-80" style={{ height: stackHeight }}>
+        <div className="relative w-full max-w-sm sm:max-w-md" style={{ height: stackHeight }}>
           {walletCards.map((card, cardIdx) => {
             const rank = order.indexOf(cardIdx);
             const isActive = rank === n - 1;
@@ -100,14 +100,14 @@ export default function WalletShowcase({ walletCards }: WalletShowcaseProps) {
                   if (isActive) openSheet(cardIdx);
                   else bringToActive(cardIdx);
                 }}
-                className="absolute left-0 right-0 cursor-pointer origin-top overflow-hidden rounded-[1.75rem]"
+                className="absolute left-0 right-0 cursor-pointer origin-top overflow-hidden rounded-[2rem]"
                 style={{
                   top,
                   zIndex: rank + 1,
                   transform: `scale(${scale})`,
                   transformOrigin: 'top center',
                   boxShadow: isActive
-                    ? '0 18px 48px -12px rgba(15,23,42,0.45)'
+                    ? '0 22px 56px -16px rgba(15,23,42,0.5)'
                     : '0 4px 14px -8px rgba(15,23,42,0.28)',
                   transition:
                     'top 0.42s cubic-bezier(0.34,1.36,0.64,1), transform 0.42s cubic-bezier(0.34,1.36,0.64,1)',
@@ -132,7 +132,7 @@ export default function WalletShowcase({ walletCards }: WalletShowcaseProps) {
       </div>
 
       <div className="mt-10 hidden md:block">
-        <div className="mx-auto grid max-w-5xl grid-cols-2 gap-6 lg:grid-cols-3">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-7 lg:grid-cols-3">
           {walletCards.map((card, cardIdx) => (
             <div
               key={`grid-${cardIdx}`}
@@ -140,7 +140,7 @@ export default function WalletShowcase({ walletCards }: WalletShowcaseProps) {
                 if (sheetCardIdx !== null) return;
                 openSheet(cardIdx);
               }}
-              className="cursor-pointer rounded-[1.75rem] shadow-[0_18px_40px_-26px_rgba(15,23,42,0.25)] transition-transform hover:-translate-y-1"
+              className="cursor-pointer rounded-[2rem] shadow-[0_18px_44px_-24px_rgba(15,23,42,0.3)] transition-transform hover:-translate-y-1.5"
               style={{ pointerEvents: sheetCardIdx !== null ? 'none' : 'auto' }}
             >
               <StampCard
@@ -163,7 +163,7 @@ export default function WalletShowcase({ walletCards }: WalletShowcaseProps) {
       {sheetCardIdx !== null && (
         <div
           onClick={closeSheet}
-          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[3px] transition-opacity duration-300"
+          className="fixed inset-0 z-40 bg-black/15 backdrop-blur-[6px] transition-opacity duration-300"
           style={{ opacity: sheetVisible ? 1 : 0 }}
         />
       )}
@@ -174,56 +174,56 @@ export default function WalletShowcase({ walletCards }: WalletShowcaseProps) {
           role="dialog"
           aria-modal="true"
           aria-label="Scan your card"
-          className="fixed bottom-0 left-0 right-0 z-50 mx-auto max-w-105 rounded-t-[28px] bg-white pb-12 transition-transform duration-380"
+          className="fixed bottom-0 left-0 right-0 z-50 mx-auto max-w-lg rounded-t-[32px] bg-white pb-14 shadow-[0_-8px_40px_-12px_rgba(15,23,42,0.2)] transition-transform duration-380"
           style={{
             transform: sheetVisible ? 'translateY(0)' : 'translateY(100%)',
             transitionTimingFunction: 'cubic-bezier(0.34,1.2,0.64,1)',
           }}
         >
           {/* Drag handle */}
-          <div className="mx-auto mt-3 h-1 w-9 rounded-full bg-slate-200" />
+          <div className="mx-auto mt-3 h-1 w-9 rounded-full bg-slate-300" />
 
           {/* Close button */}
           <button
             type="button"
             aria-label="Cerrar QR"
             onClick={closeSheet}
-            className="absolute cursor-pointer right-4 top-3.5 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200"
+            className="absolute cursor-pointer right-4 top-3.5 flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-400 text-[15px] leading-none hover:bg-slate-200 transition-colors"
           >
             ✕
           </button>
 
           {/* Title */}
-          <p className="mt-4 text-center font-roboto text-2xl font-normal text-slate-900">
-            Scan your card
+          <p className="mt-6 text-center text-xl font-semibold tracking-tight text-slate-900">
+            Escanea tu tarjeta
           </p>
 
           {/* Card mini-preview */}
           <div
-            className="mx-auto mt-5 flex h-30 w-50 flex-col items-center justify-center gap-2 rounded-xl"
+            className="mx-auto mt-6 flex h-32 w-52 flex-col items-center justify-center gap-2 rounded-2xl"
             style={{
               backgroundColor: sheetCard.cardColor,
             }}
           >
-            <div className="relative h-9 w-9 overflow-hidden rounded-full border border-white/30 bg-white/20">
+            <div className="relative h-10 w-10 overflow-hidden rounded-full border border-white/30 bg-white/20">
               <Image
                 src={sheetCard.logoSrc}
                 alt={sheetCard.businessName}
                 fill
                 className="object-cover"
-                sizes="36px"
+                sizes="40px"
               />
             </div>
-            <p className="text-[13px] font-semibold text-white">
+            <p className="text-sm font-semibold tracking-tight text-white">
               {sheetCard.businessName}
             </p>
           </div>
 
           {/* QR code */}
-          <div className="mx-auto mt-6 flex justify-center bg-white p-4 rounded-2xl shadow-inner border border-slate-100 w-64 sm:w-72">
+          <div className="mx-auto mt-6 flex justify-center bg-white p-5 rounded-2xl shadow-inner border border-slate-100 w-68 sm:w-80">
             <QRCodeSVG
               value={sheetCard.qrValue}
-              size={200}
+              size={220}
               fgColor="#0f172a"
               bgColor="#ffffff"
               level="H"
@@ -231,11 +231,11 @@ export default function WalletShowcase({ walletCards }: WalletShowcaseProps) {
           </div>
 
           {/* Card identity */}
-          <div className="mt-3 text-center">
-            <p className="text-[13px] font-semibold text-slate-900">
+          <div className="mt-4 text-center">
+            <p className="text-sm font-semibold tracking-tight text-slate-900">
               {sheetCard.businessName}
             </p>
-            <p className="mt-0.5 text-[12px] text-slate-500">
+            <p className="mt-0.5 text-[13px] font-[450] text-slate-400 tracking-tight">
               {sheetCard.cardCode}
             </p>
           </div>
