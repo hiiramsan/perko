@@ -7,7 +7,6 @@ import { ArrowUpRight, BadgeCheck } from 'lucide-react';
 type StampCardProps = {
   businessName: string;
   linkLabel: string;
-  href: string;
   logoSrc: string;
   cardColor: string;
   stampsFilled: number;
@@ -85,7 +84,6 @@ function getCardPalette(cardColor: string): CardPalette {
 export default function StampCard({
   businessName,
   linkLabel,
-  href,
   logoSrc,
   cardColor,
   stampsFilled,
@@ -136,14 +134,13 @@ export default function StampCard({
           >
             {businessName}
           </h2>
-          <a
-            href={href}
-            className="mt-1 inline-flex items-center gap-1 text-[0.82rem] font-[475] tracking-[-0.01em] transition-opacity hover:opacity-80"
+          <span
+            className="mt-1 inline-flex items-center gap-1 text-[0.82rem] font-[475] tracking-[-0.01em]"
             style={{ color: palette.linkColor }}
           >
             <span className="truncate">{linkLabel}</span>
             <ArrowUpRight size={14} strokeWidth={2.4} />
-          </a>
+          </span>
         </div>
       </div>
 

@@ -8,7 +8,6 @@ import { QRCodeSVG } from 'qrcode.react';
 export type WalletCard = {
   businessName: string;
   linkLabel: string;
-  href: string;
   logoSrc: string;
   cardColor: string;
   stampsFilled: number;
@@ -21,12 +20,13 @@ export type WalletCard = {
 
 type WalletShowcaseProps = {
   walletCards: WalletCard[];
+  onRefresh?: () => void;
 };
 
 const CARD_HEIGHT = 264;
 const PEEK_HEIGHT = 72;
 
-export default function WalletShowcase({ walletCards }: WalletShowcaseProps) {
+export default function WalletShowcase({ walletCards, onRefresh }: WalletShowcaseProps) {
   const [order, setOrder] = useState<number[]>(() =>
     walletCards.map((_, index) => index),
   );
@@ -63,6 +63,12 @@ export default function WalletShowcase({ walletCards }: WalletShowcaseProps) {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [sheetCardIdx, closeSheet]);
+
+  useEffect(() => {
+    if (sheetCardIdx === null) return;
+    const interval = setInterval(() => onRefresh?.(), 3000);
+    return () => clearInterval(interval);
+  }, [sheetCardIdx, onRefresh]);
 
   useEffect(() => {
     if (sheetCardIdx !== null && walletCards !== prevCardsRef.current) {
@@ -117,7 +123,6 @@ export default function WalletShowcase({ walletCards }: WalletShowcaseProps) {
                 <StampCard
                   businessName={card.businessName}
                   linkLabel={card.linkLabel}
-                  href={card.href}
                   logoSrc={card.logoSrc}
                   cardColor={card.cardColor}
                   stampsFilled={card.stampsFilled}
@@ -146,7 +151,6 @@ export default function WalletShowcase({ walletCards }: WalletShowcaseProps) {
               <StampCard
                 businessName={card.businessName}
                 linkLabel={card.linkLabel}
-                href={card.href}
                 logoSrc={card.logoSrc}
                 cardColor={card.cardColor}
                 stampsFilled={card.stampsFilled}

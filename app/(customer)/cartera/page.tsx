@@ -54,7 +54,7 @@ export default function CardsPage() {
             {walletCards.length === 0 ? (
               <p className="px-2 mt-6 text-sm text-slate-400">Aún no tienes tarjetas de lealtad en tu cartera.</p>
             ) : (
-              <WalletShowcase walletCards={walletCards} />
+              <WalletShowcase walletCards={walletCards} onRefresh={fetchWalletData} />
             )}
           </>
         )}
