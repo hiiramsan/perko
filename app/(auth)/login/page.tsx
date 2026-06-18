@@ -14,7 +14,6 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const { refreshSession } = useAuth();
   
-  const urlRole = searchParams.get('role') === 'admin' ? 'admin' : 'customer';
   const joinSlug = searchParams.get('join');
 
   const [rememberMe, setRememberMe] = useState(false);
@@ -63,9 +62,9 @@ function LoginForm() {
   return (
     <AuthPageShell
       title="INICIA SESIÓN"
-      subtitle={urlRole === 'admin' ? 'PANEL DE NEGOCIOS' : 'CLUB DE RECOMPENSAS'}
+      subtitle="ACCEDE A TU CUENTA"
       footerText="¿No tienes cuenta?"
-      footerHref={urlRole === 'admin' ? '/register?role=admin' : `/register?role=customer${joinSlug ? `&join=${joinSlug}` : ''}`}
+      footerHref={`/register${joinSlug ? `?join=${joinSlug}` : ''}`}
       footerLinkLabel="CREAR UNA"
       googleIntent="login"
     >

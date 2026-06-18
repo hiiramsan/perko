@@ -113,7 +113,7 @@ export default function RegisterForm({ role, joinSlug }: RegisterFormProps) {
       <PrimaryAuthButton label={loading ? 'Procesando...' : 'Crear cuenta'} disabled={loading} />
 
       <Link
-        href={`/login?role=${role}${joinSlug ? `&join=${joinSlug}` : ''}`}
+        href={`/login${joinSlug ? `?join=${joinSlug}` : ''}`}
         className="block w-full rounded-lg border border-[#9da5af] bg-white py-3 text-center text-sm font-bold uppercase tracking-wider text-[#0f172a] transition hover:border-[#7a838f] hover:text-[#1f2a44]"
       >
         Inicia sesión

@@ -14,7 +14,7 @@ export default async function JoinPage({ params }: { params: Promise<{ slug: str
     try {
       await jwtVerify(sessionToken, JWT_SECRET);
     } catch {
-      redirect('/login?role=customer');
+      redirect(`/login?join=${slug}`);
     }
     redirect(`/api/join/${slug}`);
   }

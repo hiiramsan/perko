@@ -2,12 +2,17 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { BadgeCheck, Store } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 
 type StampPreviewCardProps = {
 	businessName: string;
 	logoPreview: string;
 	cardColor?: string;
 	compact?: boolean;
+	flipped?: boolean;
+	onQrClick?: () => void;
+	qrSlug?: string;
+	qrLogoUrl?: string;
 };
 
 const TOTAL_STAMPS = 10;
@@ -76,7 +81,16 @@ function getCardPalette(cardColor: string): CardPalette {
 	};
 }
 
-export default function StampPreviewCard({ businessName, logoPreview, cardColor = '#4f7a35', compact = false }: StampPreviewCardProps) {
+export default function StampPreviewCard({
+	businessName,
+	logoPreview,
+	cardColor = '#4f7a35',
+	compact = false,
+	flipped = false,
+	onQrClick,
+	qrSlug,
+	qrLogoUrl,
+}: StampPreviewCardProps) {
 	const [filledCount, setFilledCount] = useState(0);
 	const palette = useMemo(() => getCardPalette(cardColor), [cardColor]);
 
@@ -90,7 +104,9 @@ export default function StampPreviewCard({ businessName, logoPreview, cardColor 
 
 	const stamps = useMemo(() => Array.from({ length: TOTAL_STAMPS }, (_, index) => index), []);
 
-	return (
+	const qrValue = qrSlug && typeof window !== 'undefined' ? `${window.location.origin}/join/${qrSlug}` : '';
+
+	const frontFace = (
 		<div
 			className={`h-full w-full rounded-2xl shadow-[0_18px_40px_-20px_rgba(16,40,16,0.5)] ${compact ? 'px-4 pt-3 pb-6 sm:px-5 sm:pt-3 sm:pb-7' : 'px-3 pt-3 pb-12 sm:px-5 sm:pt-5 sm:pb-14'}`}
 			style={{ backgroundColor: cardColor }}
@@ -126,6 +142,61 @@ export default function StampPreviewCard({ businessName, logoPreview, cardColor 
 						</div>
 					);
 				})}
+			</div>
+		</div>
+	);
+
+	if (!qrSlug) return frontFace;
+
+	return (
+		<div className="perspective-[1000px]">
+			<div
+				className="relative [transform-style:preserve-3d] transition-transform duration-700"
+				style={{ transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
+			>
+				<div className="[backface-visibility:hidden]">{frontFace}</div>
+
+				<div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)]">
+					<div
+						className={`flex h-full w-full items-center justify-center rounded-2xl shadow-[0_18px_40px_-20px_rgba(16,40,16,0.5)] ${compact ? 'px-4 py-6 sm:px-6 sm:py-8' : 'px-6 py-10 sm:px-8 sm:py-12'}`}
+						style={{ backgroundColor: cardColor }}
+					>
+						<button
+							type="button"
+							onClick={onQrClick}
+							className="flex items-center justify-center rounded-xl bg-white p-2 transition hover:opacity-90 cursor-pointer"
+						>
+							<div className="relative h-28 w-28 sm:h-32 sm:w-32">
+								<QRCodeSVG
+									value={qrValue}
+									size={256}
+									bgColor="#ffffff"
+									fgColor="#0f172a"
+									level="M"
+									includeMargin={false}
+									className="h-full w-full"
+									imageSettings={
+										qrLogoUrl
+											? {
+													src: 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
+													x: undefined,
+													y: undefined,
+													height: 64,
+													width: 64,
+													excavate: true,
+											  }
+											: undefined
+									}
+								/>
+								{qrLogoUrl && (
+									<svg viewBox="0 0 256 256" className="absolute inset-0 h-full w-full pointer-events-none">
+										<image href={qrLogoUrl} x={96} y={96} width={64} height={64} preserveAspectRatio="xMidYMid slice" />
+									</svg>
+								)}
+							</div>
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 	);

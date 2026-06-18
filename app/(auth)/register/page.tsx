@@ -25,7 +25,7 @@ function RegisterPageContent() {
       title={role === 'admin' ? 'CREA TU CUENTA DE NEGOCIO' : 'ÚNETE AL CLUB'}
       subtitle={role === 'admin' ? 'Empieza a diseñar tu sistema de lealtad' : 'Regístrate para obtener tu tarjeta digital'}
       footerText="¿Ya tienes cuenta?"
-      footerHref={`/login?role=${role}${joinSlug ? `&join=${joinSlug}` : ''}`}
+      footerHref={`/login${joinSlug ? `?join=${joinSlug}` : ''}`}
       footerLinkLabel="INICIA SESIÓN"
       googleIntent="register"
       googleRole={role}

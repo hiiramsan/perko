@@ -92,15 +92,15 @@ export function RecentScansTable({ items }: RecentScansTableProps) {
 									key={item.transactionId}
 									className="border-t border-[#edf2f7] bg-white/80 transition hover:bg-white"
 								>
-									<td className="px-4 py-2.5 align-top">
-										<p className="text-sm font-semibold text-[#0f172a]">
-											{item.transactionId}
-										</p>
-									</td>
+                                    <td className="px-4 py-2.5 align-top">
+                                        <p className="text-sm text-[#475569]">
+                                            {item.transactionId}
+                                        </p>
+                                    </td>
 
-									<td className="px-4 py-2.5 align-top text-sm font-medium text-[#0f172a]">
-										{item.buyerName}
-									</td>
+                                    <td className="px-4 py-2.5 align-top text-sm text-[#475569]">
+                                        {item.buyerName}
+                                    </td>
 
 									<td className="px-4 py-2.5 align-top text-sm text-[#475569]">
 										{item.dateTime}

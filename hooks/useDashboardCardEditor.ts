@@ -90,6 +90,7 @@ export function useDashboardCardEditor() {
 	};
 
 	return {
+		businessId,
 		businessName,
 		slug,
 		logoPreview,

@@ -33,14 +33,13 @@ function buildBusinessUpdate(stepData?: OnboardingData) {
 
 // Helper interno para sincronizar los programas de recompensas de forma atómica
 async function upsertPrograms(supabase: any, businessId: string, stepData?: OnboardingData) {
-  if (!stepData?.selectedSystems) return;
+  if (!stepData?.selectedSystems?.length) return;
 
   const hasRewards = stepData.selectedSystems.includes('rewards');
   const hasPoints = stepData.selectedSystems.includes('points');
 
-  // 🎟️ Sistema de Visitas / Recompensas
   if (hasRewards && stepData.rewardProduct && (stepData.rewardVisits ?? 0) > 0) {
-    await supabase
+    const { error: upsertError } = await supabase
       .from('business_rewards_programs')
       .upsert(
         [{
@@ -50,13 +49,17 @@ async function upsertPrograms(supabase: any, businessId: string, stepData?: Onbo
         }],
         { onConflict: 'business_id' }
       );
+    if (upsertError) console.error('Error upserting rewards program:', upsertError);
   } else if (!hasRewards) {
-    await supabase.from('business_rewards_programs').delete().eq('business_id', businessId);
+    const { error: deleteError } = await supabase
+      .from('business_rewards_programs')
+      .delete()
+      .eq('business_id', businessId);
+    if (deleteError) console.error('Error deleting rewards program:', deleteError);
   }
 
-  // 💰 Sistema de Monedero / Puntos
   if (hasPoints && (stepData.pointsPerPeso ?? 0) > 0 && (stepData.pesosPerPoint ?? 0) > 0) {
-    await supabase
+    const { error: upsertError } = await supabase
       .from('business_points_programs')
       .upsert(
         [{
@@ -66,8 +69,13 @@ async function upsertPrograms(supabase: any, businessId: string, stepData?: Onbo
         }],
         { onConflict: 'business_id' }
       );
+    if (upsertError) console.error('Error upserting points program:', upsertError);
   } else if (!hasPoints) {
-    await supabase.from('business_points_programs').delete().eq('business_id', businessId);
+    const { error: deleteError } = await supabase
+      .from('business_points_programs')
+      .delete()
+      .eq('business_id', businessId);
+    if (deleteError) console.error('Error deleting points program:', deleteError);
   }
 }
 
@@ -122,7 +130,7 @@ export async function saveOnboardingStepAction(step: number, stepData?: Onboardi
 
     return { success: true, completed: Boolean(completed) };
   } catch (err: any) {
-    console.error('Error al guardar paso de onboarding:', err);
+    console.error('Error al guardar paso de onboarding:', err?.message || err, { step, completed, hasLogo: !!stepData?.logoUrl, systems: stepData?.selectedSystems });
     return { success: false, error: err?.message || 'Error interno del servidor.' };
   }
 }

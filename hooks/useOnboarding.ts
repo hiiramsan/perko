@@ -243,17 +243,22 @@ export function useOnboarding(initialStep = 1) {
         pesosPerPoint: Number(pesosPerPoint) || 0,
       };
       
-      const result = await saveOnboardingStepAction(phases.length, finalStepData, true);
+      try {
+        const result = await saveOnboardingStepAction(phases.length, finalStepData, true);
 
-      setLoading(false);
+        if (result?.error) {
+          alert(result.error);
+          return;
+        }
 
-      if (result?.error) {
-        alert(result.error);
-        return;
-      }
-
-      if (result?.success) {
-        router.push('/dashboard');
+        if (result?.success) {
+          router.push('/dashboard');
+        }
+      } catch (err) {
+        console.error('Error al completar el onboarding:', err);
+        alert('Ocurrió un error al crear el negocio. Revisa la consola para más detalles.');
+      } finally {
+        setLoading(false);
       }
       return;
     }
@@ -281,7 +286,7 @@ export function useOnboarding(initialStep = 1) {
         ? { logoUrl: uploadedLogoUrlOverride || logoUrl || undefined }
         : undefined
     );
-    saveOnboardingStepAction(nextStep, stepData).catch(() => { });
+    saveOnboardingStepAction(nextStep, stepData).catch((err) => console.error('Error guardando paso intermedio:', err));
 
     setStageIndex(nextStageIndex);
   };

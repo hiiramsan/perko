@@ -1,29 +1,36 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Moon, QrCode, Sun, UserCircle2, BadgeCheck, LogOut, Home, Users, Gift, BarChart2 } from 'lucide-react';
+import { QrCode } from 'lucide-react';
 import StampPreviewCard from '@/components/StampPreviewCard';
 import { useAuth } from '@/app/context/AuthContext';
 import { AdminAddStaffForm } from './AdminAddStaffForm';
+import { AdminDashboardHeader, type AdminTab } from './AdminDashboardHeader';
+import { AdminKpiSection } from './AdminKpiSection';
+import { AdminStaffSection } from './AdminStaffSection';
+import { AdminProgramSection } from './AdminProgramSection';
 import { DashboardCardEditorModal } from './DashboardCardEditorModal';
-import { DashboardPerformancePanel } from './DashboardPerformancePanel';
 import { DashboardQrModal } from './DashboardQrModal';
 import { RecentScansTable } from './RecentScansTable';
-import { PeakHourCard } from './PeakHourCard';
-import { TopClientsCard } from './TopClientsCard';
-import { dashboardPerformanceMetricsHistorical, dashboardPerformanceMetricsToday, recentScanRows } from '../dashboard-data';
+import { recentScanRows } from '../dashboard-data';
 import { useDashboardCardEditor } from '@/hooks/useDashboardCardEditor';
+import { getIndicatorsAction, type AdminIndicators } from '@/app/actions/dashboard';
 
 export function AdminView() {
     const { logout } = useAuth();
+    const [activeTab, setActiveTab] = useState<AdminTab>('inicio');
     const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+    const [isCardFlipped, setIsCardFlipped] = useState(false);
     const [isCardModalOpen, setIsCardModalOpen] = useState(false);
     const [isStaffFormOpen, setIsStaffFormOpen] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const [indicators, setIndicators] = useState<AdminIndicators | null>(null);
+    const [loadingIndicators, setLoadingIndicators] = useState(true);
     const profileMenuRef = useRef<HTMLDivElement>(null);
 
     const {
+        businessId,
         businessName,
         slug,
         logoPreview,
@@ -48,6 +55,19 @@ export function AdminView() {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    useEffect(() => {
+        getIndicatorsAction().then((data) => {
+            if (data) setIndicators(data);
+            setLoadingIndicators(false);
+        });
+    }, []);
+
+    const staffRows = (indicators?.staff?.length ? indicators.staff : [
+        { name: 'Carlos Mendoza', stampsGiven: 48, pointsGiven: 125.50 },
+        { name: 'María García', stampsGiven: 32, pointsGiven: 89.00 },
+        { name: 'José Rivera', stampsGiven: 15, pointsGiven: 42.75 },
+    ]);
+
     return (
         <main className="relative flex h-screen w-full flex-col overflow-hidden bg-[#f7f8fa] px-4 py-3 md:px-8 md:py-4">
             <div
@@ -65,122 +85,75 @@ export function AdminView() {
                 <div className="absolute left-[16%] top-[18%] h-44 w-44 rounded-full bg-[#eef2f1] blur-[80px]" />
             </div>
 
-            <header className="relative z-10 w-full py-1">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex items-center text-2xl font-bold tracking-tight text-[#0f172a]">
-                        Perk<BadgeCheck size={28} strokeWidth={3} className="-ml-px" />
-                    </div>
-
-                    <nav className="flex items-center gap-2 rounded-full border border-black bg-white/60 px-2 py-1 shadow-sm backdrop-blur">
-                        {[
-                            { name: 'Inicio', icon: Home },
-                            { name: 'Clientes', icon: Users },
-                            { name: 'Programa', icon: Gift },
-                            { name: 'Analíticas', icon: BarChart2 },
-                        ].map((tab, index) => {
-                            const isActive = index === 0;
-
-                            return (
-                                <button
-                                    key={tab.name}
-                                    type="button"
-                                    className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:text-sm ${isActive ? 'bg-[#05668D] text-white shadow-sm' : 'text-[#475569] hover:bg-white hover:text-[#0f172a]'}`}
-                                >
-                                    <tab.icon size={16} />
-                                    {tab.name}
-                                </button>
-                            );
-                        })}
-                    </nav>
-
-                    <div className="flex items-center gap-2">
-                        <button
-                            type="button"
-                            onClick={() => setIsStaffFormOpen(true)}
-                            className="inline-flex h-10 items-center gap-2 rounded-full border border-[#dbe4ec] bg-white/60 px-4 text-sm font-semibold text-[#0f172a] shadow-sm backdrop-blur transition hover:border-[#94a3b8] hover:bg-white"
-                        >
-                            + Staff
-                        </button>
-
-                        <button
-                            type="button"
-                            onClick={() => setIsDarkMode((current) => !current)}
-                            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#dbe4ec] bg-white/60 text-[#334155] shadow-sm backdrop-blur transition hover:border-[#94a3b8] hover:bg-white"
-                            aria-label="Cambiar modo"
-                        >
-                            {isDarkMode ? <Moon size={18} /> : <Sun size={18} />}
-                        </button>
-
-                        <div className="relative" ref={profileMenuRef}>
-                            <button
-                                type="button"
-                                onClick={() => setIsProfileMenuOpen((prev) => !prev)}
-                                className="inline-flex items-center gap-2 rounded-full border border-[#dbe4ec] bg-white/60 px-3 py-2 text-sm font-semibold text-[#0f172a] shadow-sm backdrop-blur transition hover:border-[#94a3b8] hover:bg-white"
-                            >
-                                <UserCircle2 size={18} className="text-[#05668D]" />
-                                Perfil
-                            </button>
-
-                            {isProfileMenuOpen && (
-                                <div className="absolute right-0 top-full mt-2 w-48 overflow-hidden rounded-xl border border-[#dbe4ec] bg-white py-1 shadow-lg shadow-black/5">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setIsProfileMenuOpen(false);
-                                            logout();
-                                        }}
-                                        className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-red-600 transition hover:bg-red-50"
-                                    >
-                                        <LogOut size={16} />
-                                        Cerrar sesión
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <AdminDashboardHeader
+                isDarkMode={isDarkMode}
+                isProfileMenuOpen={isProfileMenuOpen}
+                profileMenuRef={profileMenuRef}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                onToggleDarkMode={() => setIsDarkMode((current) => !current)}
+                onToggleProfileMenu={() => setIsProfileMenuOpen((prev) => !prev)}
+                onLogout={() => { setIsProfileMenuOpen(false); logout(); }}
+            />
 
             <div className="relative z-10 mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col mt-4 pb-4">
-                <section className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-stretch">
-                    <div className="grid min-h-0 gap-6 lg:grid-rows-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
-                        <article className="flex flex-col overflow-hidden rounded-none border border-black bg-white">
-                            <div className="px-5 pt-4 sm:px-6">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Mi tarjeta</span>
-                                </div>
-                            </div>
-
-                            <div className="flex min-h-0 flex-1 items-center justify-center gap-10 px-5 pb-5 sm:px-6">
-                                <div className="max-w-84 sm:max-w-88">
-                                    <StampPreviewCard businessName={businessName} logoPreview={logoPreview} cardColor={cardColor} compact />
+                {activeTab === 'inicio' && (
+                    <section className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-stretch">
+                        <div className="grid min-h-0 gap-6 lg:grid-rows-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+                            <article className="flex flex-col overflow-hidden rounded-none border border-black bg-white">
+                                <div className="px-5 pt-4 pb-3 sm:px-6">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Mi tarjeta</span>
+                                    </div>
                                 </div>
 
-                                <div className="flex shrink-0 flex-col gap-3">
-                                    <button type="button" onClick={() => setIsQrModalOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#05668D] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#045676]">
-                                        <QrCode size={16} />
-                                        Mostrar QR
-                                    </button>
-                                    <button type="button" onClick={() => setIsCardModalOpen(true)} className="inline-flex items-center justify-center rounded-full border border-[#dbe4ec] bg-white px-4 py-3 text-sm font-semibold text-[#0f172a] transition hover:border-[#94a3b8] hover:bg-[#f8fbfd]">
-                                        Editar tarjeta
-                                    </button>
+                                <div className="flex flex-1 items-center justify-center gap-10 px-5 pb-5 sm:px-6">
+                                    <div className="max-w-84 sm:max-w-88">
+                                        <StampPreviewCard
+                                            businessName={businessName}
+                                            logoPreview={logoPreview}
+                                            cardColor={cardColor}
+                                            compact
+                                            flipped={isCardFlipped}
+                                            onQrClick={() => { setIsQrModalOpen(true); }}
+                                            qrSlug={slug}
+                                            qrLogoUrl={logoPreview}
+                                        />
+                                    </div>
+
+                                    <div className="flex shrink-0 flex-col gap-3">
+                                        <button type="button" onClick={() => setIsCardFlipped((prev) => !prev)} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#05668D] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#045676]">
+                                            <QrCode size={16} />
+                                            {isCardFlipped ? 'Ver frente' : 'Mostrar QR'}
+                                        </button>
+                                        <button type="button" onClick={() => setIsCardModalOpen(true)} className="inline-flex items-center justify-center rounded-full border border-[#dbe4ec] bg-white px-4 py-3 text-sm font-semibold text-[#0f172a] transition hover:border-[#94a3b8] hover:bg-[#f8fbfd]">
+                                            Editar tarjeta
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        </article>
+                            </article>
 
-                        <DashboardPerformancePanel todayMetrics={dashboardPerformanceMetricsToday} historicalMetrics={dashboardPerformanceMetricsHistorical} />
-                    </div>
-
-                    <div className="grid min-h-0 flex-1 grid-rows-2 gap-6">
-                        <div className="min-h-0">
-                            <RecentScansTable items={recentScanRows} />
+                            <AdminKpiSection indicators={indicators} loading={loadingIndicators} />
                         </div>
-                        <div className="min-h-0 grid grid-cols-1 gap-6 sm:grid-cols-2">
-                            <PeakHourCard />
-                            <TopClientsCard />
+
+                        <div className="grid min-h-0 flex-1 grid-rows-2 gap-6">
+                            <div className="min-h-0">
+                                <RecentScansTable items={recentScanRows} />
+                            </div>
+                            <AdminStaffSection
+                                staffRows={staffRows}
+                                loading={loadingIndicators}
+                                onOpenAddStaff={() => setIsStaffFormOpen(true)}
+                            />
                         </div>
-                    </div>
-                </section>
+                    </section>
+                )}
+
+                {activeTab === 'programa' && (
+                    <section className="flex min-h-0 flex-1 flex-col">
+                        <AdminProgramSection businessId={businessId} />
+                    </section>
+                )}
             </div>
 
             <DashboardCardEditorModal

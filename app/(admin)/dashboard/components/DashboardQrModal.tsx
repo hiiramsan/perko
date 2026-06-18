@@ -25,6 +25,8 @@ export function DashboardQrModal({ open, onClose, slug, logoUrl }: DashboardQrMo
 
 	if (!open) return null;
 
+	const joinUrl = typeof window !== 'undefined' ? `${window.location.origin}/join/${slug}` : '';
+
 	return (
 		<div className="fixed inset-0 z-40 flex items-center justify-center px-4 py-6">
 			<button type="button" aria-label="Cerrar modal QR" className="absolute inset-0 bg-[#0f172a]/55 backdrop-blur-sm" onClick={onClose} />
@@ -34,9 +36,14 @@ export function DashboardQrModal({ open, onClose, slug, logoUrl }: DashboardQrMo
 					<div>
 						<p className="text-xs font-bold uppercase tracking-[0.28em] text-[#64748b]">QR del negocio</p>
 						<h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#0f172a]">Listo para imprimir o compartir</h2>
-						<p className="mt-2 max-w-md text-sm leading-relaxed text-[#475569]">
-							Puedes cerrar este modal en cualquier momento y volver a abrirlo desde el botón flotante.
-						</p>
+						<a
+							href={joinUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="mt-2 block max-w-md break-all text-sm leading-relaxed text-[#05668D] underline-offset-2 hover:underline"
+						>
+							{joinUrl}
+						</a>
 					</div>
 
 					<button
