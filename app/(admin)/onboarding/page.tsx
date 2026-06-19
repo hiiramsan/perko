@@ -41,8 +41,8 @@ function OnboardingPageContent({ initialStep = 1 }: OnboardingPageProps) {
 		selectedSystems,
 		rewardProduct,
 		rewardVisits,
-		pointsPerPeso,
-		pesosPerPoint,
+		pesosForPoint,
+		pointToPesos,
 	} = state;
 	const {
 		setBusinessName,
@@ -86,9 +86,9 @@ function OnboardingPageContent({ initialStep = 1 }: OnboardingPageProps) {
 					case 'points':
 						return (
 							<PointsPhase
-								pointsPerPeso={pointsPerPeso}
+								pesosForPoint={pesosForPoint}
 								setPointsPerPeso={setPointsPerPeso}
-								pesosPerPoint={pesosPerPoint}
+								pointToPesos={pointToPesos}
 								setPesosPerPoint={setPesosPerPoint}
 							/>
 						);

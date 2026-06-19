@@ -1,6 +1,6 @@
 'use client';
 
-import { Moon, Sun, UserCircle2, BadgeCheck, LogOut, Home, Users, Gift, BarChart2 } from 'lucide-react';
+import { Moon, Sun, Menu, BadgeCheck, LogOut, Home, Users, Gift, BarChart2 } from 'lucide-react';
 
 export type AdminTab = 'inicio' | 'clientes' | 'programa' | 'analiticas';
 
@@ -33,7 +33,7 @@ export function AdminDashboardHeader({
   onLogout,
 }: AdminDashboardHeaderProps) {
   return (
-    <header className="relative z-10 w-full py-1">
+    <header className="relative z-50 w-full py-1">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center text-2xl font-bold tracking-tight text-[#0f172a]">
           Perk<BadgeCheck size={28} strokeWidth={3} className="-ml-px" />
@@ -71,14 +71,14 @@ export function AdminDashboardHeader({
             <button
               type="button"
               onClick={onToggleProfileMenu}
-              className="inline-flex items-center gap-2 rounded-full border border-[#dbe4ec] bg-white/60 px-3 py-2 text-sm font-semibold text-[#0f172a] shadow-sm backdrop-blur transition hover:border-[#94a3b8] hover:bg-white"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#dbe4ec] bg-white/60 text-[#334155] shadow-sm backdrop-blur transition hover:border-[#94a3b8] hover:bg-white"
+              aria-label="Menú"
             >
-              <UserCircle2 size={18} className="text-[#05668D]" />
-              Perfil
+              <Menu size={18} />
             </button>
 
             {isProfileMenuOpen && (
-              <div className="absolute right-0 top-full mt-2 w-48 overflow-hidden rounded-xl border border-[#dbe4ec] bg-white py-1 shadow-lg shadow-black/5">
+              <div className="absolute right-0 top-full mt-2 w-48 overflow-hidden rounded-xl border border-[#dbe4ec] bg-white py-1 shadow-lg shadow-black/5 z-50">
                 <button
                   type="button"
                   onClick={onLogout}

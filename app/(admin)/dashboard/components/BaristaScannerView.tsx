@@ -1,6 +1,6 @@
 'use client';
 
-import { Camera, Loader2, CheckCircle2, XCircle, RefreshCw, LogOut } from 'lucide-react';
+import { Camera, Loader2, CheckCircle2, XCircle, RefreshCw, LogOut, BadgeCheck, Scan } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useBaristaScanner } from '@/hooks/useBaristaScanner';
 
@@ -15,142 +15,157 @@ export function BaristaScannerView({ businessId, baristaName }: BaristaScannerVi
     amount, setAmount,
     loading, cameraActive, scanResult,
     qrRegionId,
-    startScanner, stopScanner,
+    startScanner, stopScanner, setScanResult,
   } = useBaristaScanner();
 
   return (
-    <div className="min-h-screen w-full bg-[#f8fafc] font-sans text-[#0f172a] p-4 md:p-8 flex flex-col items-center">
-      
-      {/* TOP BAR: Info del Barista */}
-      <header className="w-full max-w-md bg-white border border-[#e2e8f0] rounded-2xl p-4 flex items-center justify-between shadow-sm mb-6">
-        <div>
-          <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">Estación de Caja</span>
-          <h2 className="text-sm font-black text-slate-800 uppercase mt-0.5">☕ {baristaName}</h2>
+    <div className="relative flex min-h-screen w-full flex-col bg-[#f7f8fa] font-sans text-[#0f172a]">
+      <div
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          background: '#ffffff',
+          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(0, 0, 0, 0.28) 1px, transparent 0)',
+          backgroundSize: '20px 20px',
+        }}
+      />
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        <div className="absolute -left-1/4 -top-1/2 h-130 w-130 rounded-full bg-[#d8e6df] blur-[130px]" />
+        <div className="absolute -bottom-1/2 -right-1/4 h-110 w-110 rounded-full bg-[#e6ece9] blur-[120px]" />
+      </div>
+
+      <header className="relative z-10 mx-auto flex w-full max-w-3xl items-center justify-between px-4 pt-4 pb-3 sm:px-6 sm:pt-6">
+        <div className="flex items-center gap-1 text-xl font-bold tracking-tight text-[#0f172a]">
+          Perk<BadgeCheck size={22} strokeWidth={3} className="-ml-px" />
         </div>
-        <button 
-          onClick={logout} 
-          className="p-2.5 rounded-full bg-red-50 text-red-500 hover:bg-red-100 transition duration-200 cursor-pointer"
-          title="Cerrar sesión de caja"
-        >
-          <LogOut size={16} />
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="text-right">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Estación de Caja</p>
+            <p className="text-sm font-semibold text-[#0f172a]">{baristaName}</p>
+          </div>
+          <button
+            onClick={logout}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#dbe4ec] bg-white text-[#64748b] transition hover:border-red-200 hover:bg-red-50 hover:text-red-500"
+            title="Cerrar sesión"
+          >
+            <LogOut size={15} />
+          </button>
+        </div>
       </header>
 
-      {/* FORMULARIO: Valores de la Transacción */}
-      <main className="w-full max-w-md space-y-5">
-        
-        <div className="bg-white border border-[#e2e8f0] rounded-[1.75rem] p-5 shadow-sm space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Datos del consumo</h3>
-          
-          {/* Input del Monto de Compra */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700">Monto del Ticket o Cantidad</label>
+      <main className="relative z-10 mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 pb-4 sm:px-6 sm:pb-6 min-h-0">
+        <div className="mb-3 flex items-center gap-3 rounded-2xl border border-[#dbe4ec] bg-white px-4 py-3 shadow-sm sm:px-5 sm:py-3.5">
+          <div className="flex-1">
             <div className="relative">
-              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">$</div>
+              <div className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-[#64748b]">$</div>
               <input
                 type="number"
                 inputMode="decimal"
                 value={amount}
                 disabled={cameraActive || loading}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="Ej: 150.00 o 1"
-                className="h-11 w-full rounded-xl border border-[#cbd5e1] bg-[#f8fafc] pl-8 pr-4 text-sm font-semibold outline-none focus:border-[#0f172a] focus:bg-white transition disabled:opacity-60"
+                placeholder="0.00"
+                className="h-10 w-full rounded-xl border border-[#dbe4ec] bg-[#f8fbfd] pl-8 pr-4 text-sm font-semibold text-[#0f172a] outline-none transition focus:border-[#05668D] focus:bg-white focus:ring-2 focus:ring-[#05668D]/20 disabled:opacity-50"
               />
             </div>
-            <p className="text-[10px] font-medium text-slate-400 leading-tight">
-              * Para <strong>Timbres</strong> introduce 1. Para <strong>Monedero</strong> introduce el total de la cuenta.
-            </p>
           </div>
+          <button
+            type="button"
+            onClick={cameraActive ? stopScanner : startScanner}
+            disabled={loading}
+            className="flex h-10 shrink-0 items-center gap-2 rounded-full bg-[#05668D] px-5 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition hover:bg-[#045676] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {cameraActive ? (
+              <>Cancelar</>
+            ) : (
+              <><Scan size={14} /> Escanear</>
+            )}
+          </button>
         </div>
 
-        {/* VISOR: Contenedor de la cámara */}
-        <div className="bg-white border border-[#e2e8f0] rounded-[2rem] p-4 shadow-sm flex flex-col items-center justify-center min-h-[320px] relative overflow-hidden">
-          
-          {/* Región donde html5-qrcode inyecta el video tag de forma nativa */}
-          <div 
-            id={qrRegionId} 
-            className={`w-full aspect-square max-w-[280px] rounded-2xl overflow-hidden transition-all duration-300 ${cameraActive ? 'block' : 'hidden'}`}
+        <style>{`
+          #${qrRegionId} { height: 100% !important; width: 100% !important; }
+          #${qrRegionId} > div { height: 100% !important; }
+          #${qrRegionId} video {
+            object-fit: cover !important;
+            width: 100% !important;
+            height: 100% !important;
+          }
+        `}</style>
+        <div className={`relative min-h-[50vh] flex-1 overflow-hidden rounded-[2rem] border border-[#dbe4ec] shadow-sm ${cameraActive ? 'bg-black' : 'bg-white'}`}>
+          <div
+            id={qrRegionId}
+            className={`absolute inset-0 ${cameraActive ? '' : 'hidden'}`}
           />
 
-          {/* Pantalla de Reposo (Antes de encender la cámara) */}
           {!cameraActive && !loading && !scanResult && (
-            <div className="flex flex-col items-center text-center p-6 space-y-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 text-slate-400 border border-dashed border-slate-200">
-                <Camera size={26} />
+            <div className="flex h-full w-full flex-col items-center justify-center p-8">
+              <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full border-2 border-dashed border-[#dbe4ec] bg-[#f8fbfd] text-[#94a3b8]">
+                <Camera size={36} />
               </div>
-              <div>
-                <h4 className="text-sm font-bold text-slate-800">Lector de tarjetas listo</h4>
-                <p className="text-xs text-slate-400 mt-1 max-w-[220px]">Coloca el monto arriba y enciende la cámara para escanear el QR del cliente.</p>
-              </div>
+              <h3 className="mb-2 text-xl font-semibold text-[#0f172a]">Lector de tarjetas</h3>
+              <p className="mb-8 max-w-sm text-center text-sm leading-relaxed text-[#475569]">
+                Presiona <strong className="text-[#05668D]">Escanear</strong> para activar la cámara y leer el código QR del cliente.
+              </p>
               <button
                 type="button"
                 onClick={startScanner}
-                className="inline-flex h-11 items-center justify-center rounded-xl bg-[#0f172a] px-6 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:bg-slate-800 transition active:scale-95 cursor-pointer"
+                className="inline-flex h-12 items-center gap-2 rounded-full bg-[#0f172a] px-8 text-sm font-bold uppercase tracking-wider text-white shadow-sm transition hover:bg-[#1e293b] active:scale-[0.97]"
               >
+                <Camera size={16} />
                 Encender Cámara
               </button>
             </div>
           )}
 
-          {/* Efecto láser animado mientras escanea */}
           {cameraActive && (
-            <div className="absolute top-[40%] left-0 right-0 h-0.5 bg-red-500 shadow-[0_0_12px_2px_rgba(239,68,68,0.8)] animate-bounce pointer-events-none" />
+            <div className="pointer-events-none absolute left-0 right-0 top-[40%] h-0.5 bg-red-500 shadow-[0_0_12px_2px_rgba(239,68,68,0.8)] animate-pulse" />
           )}
 
-          {/* Estado de carga procesando el beneficio */}
           {loading && (
-            <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center space-y-3">
-              <Loader2 className="h-8 w-8 animate-spin text-[#05668D]" />
-              <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Asentando puntos...</p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-white/90 backdrop-blur-sm">
+              <Loader2 size={32} className="animate-spin text-[#05668D]" />
+              <p className="text-xs font-bold uppercase tracking-widest text-[#64748b]">Procesando...</p>
             </div>
           )}
 
-          {/* MODAL DE RESULTADO INTERNO */}
           {scanResult && (
-            <div className="absolute inset-0 bg-white p-6 flex flex-col items-center justify-center text-center space-y-4 animate-fade-in">
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-white p-8">
               {scanResult.success ? (
                 <>
-                  <div className="text-emerald-500"><CheckCircle2 size={56} strokeWidth={1.5} /></div>
-                  <div>
-                    <h3 className="text-base font-black uppercase text-emerald-600 tracking-tight">{scanResult.movement}</h3>
-                    <p className="text-sm font-bold text-slate-800 mt-1">{scanResult.buyerName}</p>
-                    <p className="text-xs text-slate-400 mt-1 max-w-[220px] leading-relaxed">{scanResult.message}</p>
+                  <div className="mb-4 text-emerald-500">
+                    <CheckCircle2 size={64} strokeWidth={1.5} />
                   </div>
+                  <h3 className="mb-1 text-xl font-black uppercase tracking-tight text-emerald-700">
+                    {scanResult.movement}
+                  </h3>
+                  <p className="mb-1 text-base font-semibold text-[#0f172a]">{scanResult.buyerName}</p>
+                  <p className="mb-6 max-w-xs text-center text-sm leading-relaxed text-[#475569]">
+                    {scanResult.message}
+                  </p>
                 </>
               ) : (
                 <>
-                  <div className="text-red-500"><XCircle size={56} strokeWidth={1.5} /></div>
-                  <div>
-                    <h3 className="text-sm font-bold text-slate-800">Transacción Fallida</h3>
-                    <p className="text-xs text-red-500 font-semibold mt-1.5 max-w-[240px] leading-relaxed bg-red-50 border border-red-100 p-2 rounded-xl">
-                      {scanResult.error}
-                    </p>
+                  <div className="mb-4 text-red-500">
+                    <XCircle size={64} strokeWidth={1.5} />
                   </div>
+                  <h3 className="mb-3 text-base font-bold text-[#0f172a]">Transacción Fallida</h3>
+                  <p className="mb-6 max-w-xs rounded-xl border border-red-100 bg-red-50 p-3 text-center text-xs font-semibold leading-relaxed text-red-600">
+                    {scanResult.error}
+                  </p>
                 </>
               )}
 
               <button
                 type="button"
-                onClick={startScanner}
-                className="mt-2 inline-flex h-10 items-center gap-2 rounded-xl bg-slate-100 px-5 text-xs font-bold text-slate-600 hover:bg-slate-200 transition cursor-pointer"
+                onClick={() => { setScanResult(null); startScanner(); }}
+                className="inline-flex h-10 items-center gap-2 rounded-full bg-[#0f172a] px-5 text-xs font-bold uppercase tracking-wider text-white transition hover:bg-[#1e293b] active:scale-[0.97]"
               >
-                <RefreshCw size={12} />
-                <span>Siguiente Cliente</span>
+                <RefreshCw size={13} />
+                Siguiente Cliente
               </button>
             </div>
           )}
         </div>
-        
-        {/* Botón para cancelar el escaneo en vivo */}
-        {cameraActive && (
-          <button
-            type="button"
-            onClick={stopScanner}
-            className="w-full text-center text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-slate-600 transition cursor-pointer"
-          >
-            Cancelar Escaneo
-          </button>
-        )}
       </main>
     </div>
   );

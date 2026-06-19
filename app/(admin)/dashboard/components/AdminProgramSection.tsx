@@ -1,8 +1,11 @@
 'use client';
 
-import { Loader2, Plus, Save, StampIcon } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useProgramSettings } from '@/hooks/useProgramSettings';
 import { useEffect } from 'react';
+import { ProgramRewardsCard } from './ProgramRewardsCard';
+import { ProgramPointsCard } from './ProgramPointsCard';
+import { AddSystemPicker } from './AddSystemPicker';
 
 type AdminProgramSectionProps = {
   businessId: string | null;
@@ -13,11 +16,20 @@ export function AdminProgramSection({ businessId }: AdminProgramSectionProps) {
     loading,
     saving,
     error,
+    hasRewards,
+    hasPoints,
     rewardProduct,
     setRewardProduct,
     rewardVisits,
     setRewardVisits,
-    save,
+    pesosForPoint,
+    setPesosForPoint,
+    pointToPesos,
+    setPointToPesos,
+    saveRewards,
+    savePoints,
+    addSystem,
+    removeSystem,
     setBusinessId,
   } = useProgramSettings();
 
@@ -37,67 +49,43 @@ export function AdminProgramSection({ businessId }: AdminProgramSectionProps) {
         </div>
       ) : (
         <div className="flex flex-col gap-8 p-5 sm:p-6">
-          <div className="rounded-xl border border-[#edf2f7] bg-[#f9fcfb] p-4 sm:p-5">
-            <div className="mb-4 flex items-center gap-2">
-              <StampIcon size={16} className="text-[#05668D]" />
-              <span className="text-xs font-bold uppercase tracking-wider text-[#334155]">Sistema de Timbres</span>
+          {error && (
+            <div className="rounded-lg bg-red-50 px-4 py-2 text-xs font-medium text-red-600">
+              {error}
             </div>
+          )}
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                  Producto de Recompensa
-                </label>
-                <input
-                  type="text"
-                  value={rewardProduct}
-                  onChange={(e) => setRewardProduct(e.target.value)}
-                  placeholder="Ej: Café Americano"
-                  className="mt-1 h-9 w-full rounded-lg border border-slate-200 px-3 text-xs outline-none focus:border-slate-950 transition"
-                />
-              </div>
-              <div>
-                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                  Timbres Necesarios
-                </label>
-                <input
-                  type="number"
-                  min={1}
-                  value={rewardVisits}
-                  onChange={(e) => setRewardVisits(e.target.value)}
-                  className="mt-1 h-9 w-full rounded-lg border border-slate-200 px-3 text-xs outline-none focus:border-slate-950 transition"
-                />
-              </div>
-            </div>
+          {hasRewards && (
+            <ProgramRewardsCard
+              rewardProduct={rewardProduct}
+              rewardVisits={rewardVisits}
+              saving={saving}
+              onRewardProductChange={setRewardProduct}
+              onRewardVisitsChange={setRewardVisits}
+              onSave={saveRewards}
+              onRemove={() => removeSystem('rewards')}
+            />
+          )}
 
-            <div className="mt-4 flex items-center justify-between">
-              {error && (
-                <p className="text-xs font-medium text-red-500">{error}</p>
-              )}
-              <div className="ml-auto">
-                <button
-                  type="button"
-                  onClick={save}
-                  disabled={saving || !rewardProduct.trim() || !rewardVisits}
-                  className="inline-flex h-8 items-center gap-1.5 rounded-full bg-[#05668D] px-4 text-xs font-semibold text-white transition hover:bg-[#045676] disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {saving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
-                  Guardar cambios
-                </button>
-              </div>
-            </div>
-          </div>
+          {hasPoints && (
+            <ProgramPointsCard
+              pesosForPoint={pesosForPoint}
+              pointToPesos={pointToPesos}
+              saving={saving}
+              onPesosForPointChange={setPesosForPoint}
+              onPointToPesosChange={setPointToPesos}
+              onSave={savePoints}
+              onRemove={() => removeSystem('points')}
+            />
+          )}
 
           <div className="border-t border-[#edf2f7] pt-6">
-            <button
-              type="button"
-              disabled
-              className="inline-flex h-9 items-center gap-2 rounded-full border border-dashed border-[#c8d3de] bg-transparent px-5 text-xs font-semibold text-[#94a3b8] transition cursor-not-allowed"
-            >
-              <Plus size={14} />
-              Agregar sistema
-            </button>
-            <p className="mt-1.5 text-[11px] text-[#94a3b8]">Próximamente: sistema de puntos, monedero digital y más.</p>
+            <AddSystemPicker
+              hasRewards={hasRewards}
+              hasPoints={hasPoints}
+              saving={saving}
+              onAdd={addSystem}
+            />
           </div>
         </div>
       )}

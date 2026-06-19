@@ -60,7 +60,7 @@ export async function getCustomerWalletAction() {
 
       const { data: pointsProg } = await supabaseAdmin
         .from('business_points_programs')
-        .select('points_per_peso')
+        .select('pesos_for_point')
         .eq('business_id', card.business_id)
         .maybeSingle();
 

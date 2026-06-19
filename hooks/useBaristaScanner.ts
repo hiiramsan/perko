@@ -82,7 +82,7 @@ export function useBaristaScanner() {
         {
           fps: 10,
           qrbox: (width, height) => {
-            const size = Math.min(width, height) * 0.75;
+            const size = Math.max(Math.min(width, height) * 0.75, 80);
             return { width: size, height: size };
           },
         },

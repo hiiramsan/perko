@@ -83,7 +83,7 @@ export async function processCustomerScanAction(
 
     const { data: pointsProg } = await supabaseAdmin
       .from('business_points_programs')
-      .select('points_per_peso')
+      .select('pesos_for_point')
       .eq('business_id', card.business_id)
       .maybeSingle();
 
@@ -151,7 +151,7 @@ export async function processCustomerScanAction(
     // CASO B: EL COMERCIO OPERA CON MONEDERO ELECTRÓNICO (PUNTOS)
     // ─────────────────────────────────────────────────────────────────
     if (pointsProg) {
-      const factor = Number(pointsProg.points_per_peso) || 0.10; // Ejemplo: 10% de la compra
+      const factor = Number(pointsProg.pesos_for_point) || 0.10; // Ejemplo: 10% de la compra
       const pointsToEarn = Number((amount * factor).toFixed(2));
 
       if (pointsToEarn <= 0) {

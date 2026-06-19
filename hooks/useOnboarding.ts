@@ -39,8 +39,8 @@ export function useOnboarding(initialStep = 1) {
   const [lockedSystems, setLockedSystems] = useState<string[]>([]);
   const [rewardProduct, setRewardProduct] = useState('');
   const [rewardVisits, setRewardVisits] = useState('10');
-  const [pointsPerPeso, setPointsPerPeso] = useState('5');
-  const [pesosPerPoint, setPesosPerPoint] = useState('0.10');
+  const [pesosForPoint, setPointsPerPeso] = useState('5');
+  const [pointToPesos, setPesosPerPoint] = useState('0.10');
 
   useEffect(() => {
     let cancelled = false;
@@ -67,8 +67,8 @@ export function useOnboarding(initialStep = 1) {
       }
       if (data?.rewardProduct) setRewardProduct(data.rewardProduct);
       if (data?.rewardVisits) setRewardVisits(String(data.rewardVisits));
-      if (data?.pointsPerPeso) setPointsPerPeso(String(data.pointsPerPeso));
-      if (data?.pesosPerPoint) setPesosPerPoint(String(data.pesosPerPoint));
+      if (data?.pesosForPoint) setPointsPerPeso(String(data.pesosForPoint));
+      if (data?.pointToPesos) setPesosPerPoint(String(data.pointToPesos));
 
       if (status !== 'completed' && step && step > 0) {
         setResumeStep(step);
@@ -131,11 +131,11 @@ export function useOnboarding(initialStep = 1) {
     }
 
     if (isPointsSystem(phaseData.id)) {
-      return Number(pointsPerPeso) > 0 && Number(pesosPerPoint) > 0;
+      return Number(pesosForPoint) > 0 && Number(pointToPesos) > 0;
     }
 
     return true;
-  }, [businessName, cardColor, currentPhase, logoFile, logoUrl, phaseData, pesosPerPoint, pointsPerPeso, rewardProduct, rewardVisits, selectedSystems, slug]);
+  }, [businessName, cardColor, currentPhase, logoFile, logoUrl, phaseData, pointToPesos, pesosForPoint, rewardProduct, rewardVisits, selectedSystems, slug]);
 
   const buildStepData = (override?: Partial<OnboardingSnapshot['data']>) => {
     if (!currentPhase) return undefined;
@@ -159,8 +159,8 @@ export function useOnboarding(initialStep = 1) {
     if (isPointsSystem(currentPhase.system.id)) {
       return merge({
         selectedSystems,
-        pointsPerPeso: Number(pointsPerPeso) || 0,
-        pesosPerPoint: Number(pesosPerPoint) || 0,
+        pesosForPoint: Number(pesosForPoint) || 0,
+        pointToPesos: Number(pointToPesos) || 0,
       });
     }
 
@@ -239,8 +239,8 @@ export function useOnboarding(initialStep = 1) {
         selectedSystems,
         rewardProduct,
         rewardVisits: Number(rewardVisits) || 0,
-        pointsPerPeso: Number(pointsPerPeso) || 0,
-        pesosPerPoint: Number(pesosPerPoint) || 0,
+        pesosForPoint: Number(pesosForPoint) || 0,
+        pointToPesos: Number(pointToPesos) || 0,
       };
       
       try {
@@ -308,8 +308,8 @@ export function useOnboarding(initialStep = 1) {
       lockedSystems,
       rewardProduct,
       rewardVisits,
-      pointsPerPeso,
-      pesosPerPoint,
+      pesosForPoint,
+      pointToPesos,
     },
     setters: {
       setBusinessName,

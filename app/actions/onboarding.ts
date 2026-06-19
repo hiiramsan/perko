@@ -11,8 +11,8 @@ export type OnboardingData = {
   selectedSystems?: string[];
   rewardProduct?: string;
   rewardVisits?: number;
-  pointsPerPeso?: number;
-  pesosPerPoint?: number;
+  pesosForPoint?: number;
+  pointToPesos?: number;
 };
 
 export type OnboardingSnapshot = {
@@ -58,14 +58,14 @@ async function upsertPrograms(supabase: any, businessId: string, stepData?: Onbo
     if (deleteError) console.error('Error deleting rewards program:', deleteError);
   }
 
-  if (hasPoints && (stepData.pointsPerPeso ?? 0) > 0 && (stepData.pesosPerPoint ?? 0) > 0) {
+  if (hasPoints && (stepData.pesosForPoint ?? 0) > 0 && (stepData.pointToPesos ?? 0) > 0) {
     const { error: upsertError } = await supabase
       .from('business_points_programs')
       .upsert(
         [{
           business_id: businessId,
-          points_per_peso: stepData.pointsPerPeso ?? 0,
-          pesos_per_point: stepData.pesosPerPoint ?? 0,
+          pesos_for_point: stepData.pesosForPoint ?? 0,
+          point_to_pesos: stepData.pointToPesos ?? 0,
         }],
         { onConflict: 'business_id' }
       );
@@ -170,7 +170,7 @@ export async function loadOnboardingSnapshot() {
 
     const { data: pointsProgram } = await supabaseAdmin
       .from('business_points_programs')
-      .select('points_per_peso, pesos_per_point')
+      .select('pesos_for_point, point_to_pesos')
       .eq('business_id', business.id)
       .maybeSingle();
 
@@ -187,8 +187,8 @@ export async function loadOnboardingSnapshot() {
         selectedSystems,
         rewardProduct: rewardsProgram?.reward_product ?? undefined,
         rewardVisits: rewardsProgram?.reward_visits ?? undefined,
-        pointsPerPeso: pointsProgram?.points_per_peso ?? undefined,
-        pesosPerPoint: pointsProgram?.pesos_per_point ?? undefined,
+        pesosForPoint: pointsProgram?.pesos_for_point ?? undefined,
+        pointToPesos: pointsProgram?.point_to_pesos ?? undefined,
       },
     } satisfies OnboardingSnapshot;
   } catch (error) {

@@ -1,14 +1,14 @@
 'use client';
 
 export function PointsPhase({
-	pointsPerPeso,
+	pesosForPoint,
 	setPointsPerPeso,
-	pesosPerPoint,
+	pointToPesos,
 	setPesosPerPoint,
 }: {
-	pointsPerPeso: string;
+	pesosForPoint: string;
 	setPointsPerPeso: (val: string) => void;
-	pesosPerPoint: string;
+	pointToPesos: string;
 	setPesosPerPoint: (val: string) => void;
 }) {
 	return (
@@ -22,7 +22,7 @@ export function PointsPhase({
 					<input
 						type="number"
 						min="1"
-						value={pointsPerPeso}
+						value={pesosForPoint}
 						onChange={(event) => setPointsPerPeso(event.target.value)}
 						className="w-full rounded-2xl border border-[#dbe4ec] bg-white px-4 py-3 text-[#0f172a] focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#2A9D8F]"
 					/>
@@ -33,7 +33,7 @@ export function PointsPhase({
 					<input
 						type="number"
 						min="1"
-						value={pesosPerPoint}
+						value={pointToPesos}
 						onChange={(event) => setPesosPerPoint(event.target.value)}
 						className="w-full rounded-2xl border border-[#dbe4ec] bg-white px-4 py-3 text-[#0f172a] focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#2A9D8F]"
 					/>
